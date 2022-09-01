@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import 'trix/dist/trix';
 import 'trix/dist/trix.css';
 import { TrixEditor } from 'react-trix';
-import { Toolbar, IconButton, Button } from '@mui/material';
+import { Toolbar, Button } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 
 export const Editor = () => {

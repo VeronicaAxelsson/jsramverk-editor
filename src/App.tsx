@@ -1,9 +1,9 @@
-import React, {createContext, useContext} from 'react';
+import React from 'react';
 import './App.css';
 
 
 import { Editor } from './components/editor';
-import { useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import theme from './themes/index'
 
 const App: React.FC = () => {
