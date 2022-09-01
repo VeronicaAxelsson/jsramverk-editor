@@ -2,6 +2,7 @@
   "name": "jsramverk-editor",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
@@ -11,7 +12,6 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "@tinymce/tinymce-react": "^4.2.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.11.56",
     "@types/react": "^18.0.17",
