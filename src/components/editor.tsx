@@ -1,57 +1,102 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import 'trix/dist/trix';
 import 'trix/dist/trix.css';
 import { TrixEditor } from 'react-trix';
-import { Toolbar, Button } from '@mui/material';
+import { Toolbar, Button, TextField, Grid } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
+import { docsModel, Document } from '../utils/docs';
+import { useParams } from 'react-router-dom';
+import { Header } from './Header';
 
 export const Editor = () => {
-  const editorRef = useRef('');
+    const { documentId } = useParams();
+    const [loadingDocument, setLoadingDocument] = useState(true);
+    const editorRef = useRef(null);
+    const titleRef = useRef(null);
 
-  const textEditor = {
-    padding: '0 24px',
-  };
+    useEffect(() => {
+        (async () => {
+            const document: Document = await docsModel.getDoc(documentId);
+            editorRef.current = document.content;
+            titleRef.current = document.title;
+            setLoadingDocument(false);
+        })();
+    }, [documentId]);
 
-  let mergeTags = [
-    {
-      trigger: '@',
-      tags: [
-        { name: 'Dominic St-Pierre', tag: '@dominic' },
-        { name: 'John Doe', tag: '@john' }
-      ]
-    },
-  ];
+    const textEditor = {
+        padding: '0 24px'
+    };
 
-  const handleEditorReady = (editor: any) => {
-    // this is a reference back to the editor if you want to
-    // do editing programatically
-  };
+    let mergeTags = [
+        {
+            trigger: '@',
+            tags: [
+                { name: 'Dominic St-Pierre', tag: '@dominic' },
+                { name: 'John Doe', tag: '@john' }
+            ]
+        }
+    ];
 
-  const handleChange = (html: any, text: string) => {
-    editorRef.current = text;
-  };
+    const handleEditorReady = (editor: any) => {
+        // this is a reference back to the editor if you want to
+        // do editing programatically
+    };
 
-  const saveText = () => {
-    console.log(editorRef.current);
-  };
+    const handleChange = (html: any, text: string) => {
+        editorRef.current = html;
+    };
 
-  return (
-    <React.Fragment>
-    <Toolbar sx={{ justifyContent: "space-between" }}>
-      <div />
-      <Button size={'small'} variant={"contained"} endIcon={<SaveIcon />} onClick={saveText}>
-  Save
-</Button>
-      </Toolbar>
-      <div style={textEditor}>
-      <TrixEditor
-        className='trix-text-editor'
-        onChange={handleChange}
-        onEditorReady={handleEditorReady}
-        mergeTags={mergeTags}
-        value={''}
-      />
-      </div>
-    </React.Fragment>
-  );
+    const handleTitleChange = (event: any) => {
+        titleRef.current = event.currentTarget.value;
+    };
+
+    const saveText = async () => {
+        const data = {
+            content: editorRef.current,
+            title: titleRef.current
+        };
+        const document = await docsModel.saveDoc(documentId, data);
+        console.log(document);
+    };
+
+    return (
+        <React.Fragment>
+            <Header></Header>
+            {!loadingDocument && (
+                <Toolbar>
+                    <Grid container spacing={1}>
+                        <Grid item xs textAlign={'left'}>
+                            <TextField
+                                variant={'standard'}
+                                size={'small'}
+                                onChange={handleTitleChange}
+                                defaultValue={titleRef.current}
+                            ></TextField>
+                        </Grid>
+                        <Grid item xs={'auto'} justifyContent="flex-end">
+                            <Button
+                                size={'small'}
+                                variant={'contained'}
+                                endIcon={<SaveIcon />}
+                                onClick={saveText}
+                            >
+                                Save
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Toolbar>
+            )}
+            <div style={textEditor}>
+                {!loadingDocument && (
+                    <TrixEditor
+                        className="trix-text-editor"
+                        onChange={handleChange}
+                        onEditorReady={handleEditorReady}
+                        mergeTags={mergeTags}
+                        value={editorRef.current}
+                    />
+                )}
+            </div>
+        </React.Fragment>
+    );
 };

@@ -1,3 +1,12 @@
 .trix-text-exitor {
     padding: 0 24px;
+    border: 1px solid #000 !important;
+}
+
+trix-editor {
+    border: 1px solid #000 !important;
+}
+
+.trix-toolbar.trix-button {
+    background-color: #000 ;
 }
