@@ -5,9 +5,9 @@ import Editor from './Editor'
 import {BrowserRouter as Router} from 'react-router-dom';
 import {render, screen, fireEvent} from '@testing-library/react';
 import { docsModel } from '../utils/docs';
+import {expect, jest, test} from '@jest/globals';
 
-
-let container = null;
+let container: any = null;
 beforeEach(() => {
   container = document.createElement("div");
   document.body.appendChild(container);
@@ -40,7 +40,9 @@ describe('Editor', () => {
       await act( async () => {
         ReactDOM.createRoot(container).render(<Router><Editor /></Router>);
       });
+      // @ts-ignore
       expect(screen.getByRole('textbox', {name: /title-textbox/i}).value).toContain(fakeDocument.title);
+      // @ts-ignore
       expect(screen.getByRole('textbox', {name: ""}).value).toContain(fakeDocument.content);
   })
 

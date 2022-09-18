@@ -6,7 +6,7 @@ import {BrowserRouter as Router, useNavigate} from 'react-router-dom';
 import {render, screen} from '@testing-library/react'
 import { docsModel } from '../utils/docs';
 
-let container = null;
+let container: any = null;
 beforeEach(() => {
   // setup a DOM element as a render target
   container = document.createElement("div");
