@@ -1,10 +1,10 @@
 import React from "react";
 import { act } from "react-dom/test-utils";
 import ReactDOM from 'react-dom/client';
-import Editor from './Editor'
+import Editor from './Editor.tsx'
 import {BrowserRouter as Router} from 'react-router-dom';
 import {render, screen, fireEvent} from '@testing-library/react';
-import { docsModel } from '../utils/docs';
+import { docsModel } from '../utils/docs.tsx';
 
 
 let container = null;
