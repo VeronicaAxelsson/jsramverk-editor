@@ -1,7 +1,7 @@
 import React from "react";
 import { act } from "react-dom/test-utils";
 import ReactDOM from 'react-dom/client';
-import DocsList from './DocsList.tsx'
+import DocsList from './DocsList'
 import {BrowserRouter as Router, useNavigate} from 'react-router-dom';
 import {render, screen} from '@testing-library/react'
 import { docsModel } from '../utils/docs';
