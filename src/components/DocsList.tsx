@@ -22,12 +22,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { docsModel, Document } from '../utils/docs';
 import { Header } from './Header';
+// import { Navigate } from "react-router-dom";
 import theme from '../themes/index';
+import { AnyARecord } from 'dns';
 
-export const DocsList = () => {
+const DocsList = () => {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [openDeleteAlert, setOpenDeleteAlert] = useState<boolean>(false);
     const [state, updateState] = useState<object>({});
@@ -56,6 +58,10 @@ export const DocsList = () => {
         navigate(`/${doc._id}`);
     };
 
+    const goToDocument = async (documentId: string) => {
+        navigate(`/${documentId}`);
+    }
+
     const actionButtonStyle = {
         margin: 0,
         top: 'auto',
@@ -78,28 +84,28 @@ export const DocsList = () => {
             <Header></Header>
             <Box sx={{ flexGrow: 1 }}>
                 <List dense={true}>
-                    {documents.map((document) => (
-                        <>
-                            <ListItem key={document._id}>
+                    {documents.map((document: Document, i: any) => (
+                            <ListItem key={i} data-testid="listItem">
                                 <ListItemAvatar>
                                     <Avatar sx={{ backgroundColor:'background.default'}}>
                                         <ArticleIcon color='secondary' />
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
+                                    data-testid="listItemText"
                                     primary={document.title}
                                     secondary={format(
                                         new Date(document.updatedAt),
-                                        'yyyy-MM-dd hh:mm'
+                                        'yyyy-MM-dd HH:mm'
                                     )}
                                 />
-                                <Link to={`${document._id}`}>
+                                {/* <Navigate to={`${document._id}`}> */}
                                     <Tooltip title="Edit document">
-                                        <IconButton aria-label="edit" edge="end">
+                                        <IconButton aria-label="edit" edge="end" onClick={() => goToDocument(document._id)}>
                                             <EditIcon />
                                         </IconButton>
                                     </Tooltip>
-                                </Link>
+                                {/* </Navigate> */}
                                 <Tooltip title="Delete document">
                                     <IconButton
                                         aria-label="delete"
@@ -134,12 +140,10 @@ export const DocsList = () => {
                                     </DialogActions>
                                 </Dialog>
                             </ListItem>
-                            <Divider variant="inset" component="li" />
-                        </>
                     ))}
                 </List>
             </Box>
-            <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={createDocument}>
+            <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={createDocument}> 
                 <Tooltip title="Create new document">
                     <AddIcon />
                 </Tooltip>
@@ -147,3 +151,5 @@ export const DocsList = () => {
         </React.Fragment>
     );
 };
+
+export default DocsList;

@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import { Editor } from './components/Editor';
-import { DocsList } from './components/DocsList';
+import Editor from './components/Editor';
+import DocsList from './components/DocsList';
 import { Routes, Route } from 'react-router-dom';
 
 const App: React.FC = () => {

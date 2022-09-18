@@ -9,13 +9,10 @@
         "@mui/icons-material": "^5.10.3",
         "@mui/lab": "^5.0.0-alpha.97",
         "@mui/material": "^5.10.3",
-        "@testing-library/jest-dom": "^5.16.5",
-        "@testing-library/react": "^13.3.0",
         "@testing-library/user-event": "^13.5.0",
         "@types/jest": "^27.5.2",
         "@types/node": "^16.11.56",
-        "@types/react": "^18.0.17",
-        "@types/react-dom": "^18.0.6",
+        "axios": "^0.27.2",
         "date-fns": "^2.29.2",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -28,6 +25,7 @@
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
+        "deploy": "npm run build && rsync -av --delete build/ veax20@ssh.student.bth.se:www/editor",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "format": "prettier --ignore-path .prettierignore --write \"**/*.+(js|ts|tsx|json)\" --config ./.prettierrc"
@@ -51,12 +49,19 @@
         ]
     },
     "devDependencies": {
+        "@testing-library/jest-dom": "^5.16.5",
+        "@testing-library/react": "^13.4.0",
+        "@types/react": "^18.0.20",
+        "@types/react-dom": "^18.0.6",
         "@typescript-eslint/eslint-plugin": "^5.36.0",
         "@typescript-eslint/parser": "^5.36.0",
+        "enzyme": "^3.11.0",
         "eslint": "^8.23.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.2.1",
         "eslint-plugin-react": "^7.31.1",
-        "prettier": "^2.7.1"
+        "jest": "^27.5.1",
+        "prettier": "^2.7.1",
+        "react-test-renderer": "^18.2.0"
     }
 }

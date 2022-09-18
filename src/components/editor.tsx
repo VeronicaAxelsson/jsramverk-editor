@@ -8,7 +8,7 @@ import { docsModel, Document } from '../utils/docs';
 import { useParams } from 'react-router-dom';
 import { Header } from './Header';
 
-export const Editor = () => {
+const Editor = () => {
     const { documentId } = useParams();
     const [loadingDocument, setLoadingDocument] = useState(true);
     const editorRef = useRef(null);
@@ -56,7 +56,6 @@ export const Editor = () => {
             title: titleRef.current
         };
         const document = await docsModel.saveDoc(documentId, data);
-        console.log(document);
     };
 
     return (
@@ -67,6 +66,9 @@ export const Editor = () => {
                     <Grid container spacing={1}>
                         <Grid item xs textAlign={'left'}>
                             <TextField
+                                inputProps={{
+                                    'aria-label': 'title-textbox' ,
+                                }}
                                 variant={'standard'}
                                 size={'small'}
                                 onChange={handleTitleChange}
@@ -75,6 +77,7 @@ export const Editor = () => {
                         </Grid>
                         <Grid item xs={'auto'} justifyContent="flex-end">
                             <Button
+                                aria-label= {'save'}
                                 size={'small'}
                                 variant={'contained'}
                                 endIcon={<SaveIcon />}
@@ -94,9 +97,12 @@ export const Editor = () => {
                         onEditorReady={handleEditorReady}
                         mergeTags={mergeTags}
                         value={editorRef.current}
+                        aria-label={'trix-textbox'}
                     />
                 )}
             </div>
         </React.Fragment>
     );
 };
+
+export default Editor;
