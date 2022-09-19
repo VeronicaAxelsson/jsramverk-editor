@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
-import { 
-    IconButton, 
-    Avatar, 
-    Button, 
-    Tooltip, 
-    Divider, 
-    List, 
-    ListItem, 
-    ListItemAvatar, 
-    ListItemText, 
-    Box, 
+import {
+    IconButton,
+    Avatar,
+    Button,
+    Tooltip,
+    Divider,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Box,
     Fab,
     Dialog,
     DialogActions,
@@ -60,7 +60,7 @@ const DocsList = () => {
 
     const goToDocument = async (documentId: string) => {
         navigate(`/${documentId}`);
-    }
+    };
 
     const actionButtonStyle = {
         margin: 0,
@@ -85,65 +85,63 @@ const DocsList = () => {
             <Box sx={{ flexGrow: 1 }}>
                 <List dense={true}>
                     {documents.map((document: Document, i: any) => (
-                            <ListItem key={i} data-testid="listItem">
-                                <ListItemAvatar>
-                                    <Avatar sx={{ backgroundColor:'background.default'}}>
-                                        <ArticleIcon color='secondary' />
-                                    </Avatar>
-                                </ListItemAvatar>
-                                <ListItemText
-                                    data-testid="listItemText"
-                                    primary={document.title}
-                                    secondary={format(
-                                        new Date(document.updatedAt),
-                                        'yyyy-MM-dd HH:mm'
-                                    )}
-                                />
-                                {/* <Navigate to={`${document._id}`}> */}
-                                    <Tooltip title="Edit document">
-                                        <IconButton aria-label="edit" edge="end" onClick={() => goToDocument(document._id)}>
-                                            <EditIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                {/* </Navigate> */}
-                                <Tooltip title="Delete document">
-                                    <IconButton
-                                        aria-label="delete"
-                                        edge="end"
-                                        onClick={handleOpenDeleteAlert}
-                                    >
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Tooltip>
-                                <Dialog
-                                    open={openDeleteAlert}
-                                    onClose={handleCloseDeleteAlert}
-                                    aria-labelledby="alert-dialog-title"
-                                    aria-describedby="alert-dialog-description"
+                        <ListItem key={i} data-testid="listItem">
+                            <ListItemAvatar>
+                                <Avatar sx={{ backgroundColor: 'background.default' }}>
+                                    <ArticleIcon color="secondary" />
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                                data-testid="listItemText"
+                                primary={document.title}
+                                secondary={format(new Date(document.updatedAt), 'yyyy-MM-dd HH:mm')}
+                            />
+                            {/* <Navigate to={`${document._id}`}> */}
+                            <Tooltip title="Edit document">
+                                <IconButton
+                                    aria-label="edit"
+                                    edge="end"
+                                    onClick={() => goToDocument(document._id)}
                                 >
-                                    <DialogTitle id="alert-dialog-title">
-                                        {'Are you sure you want to delete the document?'}
-                                    </DialogTitle>
-                                    <DialogContent>
-                                        <DialogContentText id="alert-dialog-description">
-                                            Press DELETE to confirm.
-                                        </DialogContentText>
-                                    </DialogContent>
-                                    <DialogActions>
-                                        <Button onClick={handleCloseDeleteAlert}>Abort</Button>
-                                        <Button
-                                            onClick={() => handleDelete(document._id)}
-                                            autoFocus
-                                        >
-                                            DELETE
-                                        </Button>
-                                    </DialogActions>
-                                </Dialog>
-                            </ListItem>
+                                    <EditIcon />
+                                </IconButton>
+                            </Tooltip>
+                            {/* </Navigate> */}
+                            <Tooltip title="Delete document">
+                                <IconButton
+                                    aria-label="delete"
+                                    edge="end"
+                                    onClick={handleOpenDeleteAlert}
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Dialog
+                                open={openDeleteAlert}
+                                onClose={handleCloseDeleteAlert}
+                                aria-labelledby="alert-dialog-title"
+                                aria-describedby="alert-dialog-description"
+                            >
+                                <DialogTitle id="alert-dialog-title">
+                                    {'Are you sure you want to delete the document?'}
+                                </DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText id="alert-dialog-description">
+                                        Press DELETE to confirm.
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleCloseDeleteAlert}>Abort</Button>
+                                    <Button onClick={() => handleDelete(document._id)} autoFocus>
+                                        DELETE
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+                        </ListItem>
                     ))}
                 </List>
             </Box>
-            <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={createDocument}> 
+            <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={createDocument}>
                 <Tooltip title="Create new document">
                     <AddIcon />
                 </Tooltip>

@@ -12,7 +12,7 @@ const theme = createTheme({
             contrastText: '#000'
         },
         background: {
-            default: '#86B3D1',
+            default: '#86B3D1'
         }
     }
 });

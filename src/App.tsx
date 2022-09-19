@@ -6,12 +6,12 @@ import { Routes, Route } from 'react-router-dom';
 
 const App: React.FC = () => {
     return (
-            <div className="App">
-                <Routes>
-                    <Route path={`/`} element={<DocsList />} />
-                    <Route path={`/:documentId`} element={<Editor />} />
-                </Routes>
-            </div>
+        <div className="App">
+            <Routes>
+                <Route path={`/`} element={<DocsList />} />
+                <Route path={`/:documentId`} element={<Editor />} />
+            </Routes>
+        </div>
     );
 };
 
