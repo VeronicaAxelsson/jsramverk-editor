@@ -67,7 +67,7 @@ const Editor = () => {
                         <Grid item xs textAlign={'left'}>
                             <TextField
                                 inputProps={{
-                                    'aria-label': 'title-textbox' ,
+                                    'aria-label': 'title-textbox'
                                 }}
                                 variant={'standard'}
                                 size={'small'}
@@ -77,7 +77,7 @@ const Editor = () => {
                         </Grid>
                         <Grid item xs={'auto'} justifyContent="flex-end">
                             <Button
-                                aria-label= {'save'}
+                                aria-label={'save'}
                                 size={'small'}
                                 variant={'contained'}
                                 endIcon={<SaveIcon />}
