@@ -9,7 +9,7 @@ import {
     Menu,
     Avatar,
     Tooltip,
-    MenuItem
+    MenuItem,
 } from '@mui/material';
 import AbcIcon from '@mui/icons-material/Abc';
 import { useNavigate } from 'react-router-dom';
@@ -52,7 +52,7 @@ export const Header = () => {
                             fontWeight: 700,
                             letterSpacing: '.3rem',
                             color: 'inherit',
-                            textDecoration: 'none'
+                            textDecoration: 'none',
                         }}
                     >
                         EDITOR
@@ -70,12 +70,12 @@ export const Header = () => {
                             anchorEl={anchorElUser}
                             anchorOrigin={{
                                 vertical: 'top',
-                                horizontal: 'right'
+                                horizontal: 'right',
                             }}
                             keepMounted
                             transformOrigin={{
                                 vertical: 'top',
-                                horizontal: 'right'
+                                horizontal: 'right',
                             }}
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}

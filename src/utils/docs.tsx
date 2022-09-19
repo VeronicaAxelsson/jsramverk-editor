@@ -7,15 +7,19 @@ export type Document = {
     updatedAt?: Date;
 };
 
+export type DeleteResponse = {
+    message?: string;
+};
+
 export const docsModel = {
     getAllDocs: async () => {
-        const response = await fetch(`${URL}/docs`);
+        const response: Response = await fetch(`${URL}/docs`);
         const result: Document[] = await response.json();
 
         return result;
     },
     getDoc: async (documentId: string) => {
-        const response = await fetch(`${URL}/docs/${documentId}`);
+        const response: Response = await fetch(`${URL}/docs/${documentId}`);
         const result: Document = await response.json();
 
         return result;
@@ -24,9 +28,9 @@ export const docsModel = {
         const requestOptions = {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         };
-        const response = await fetch(`${URL}/docs/${documentId}`, requestOptions);
+        const response: Response = await fetch(`${URL}/docs/${documentId}`, requestOptions);
         const result = await response.json();
 
         return result;
@@ -35,20 +39,20 @@ export const docsModel = {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         };
-        const response = await fetch(`${URL}/docs`, requestOptions);
-        const result = await response.json();
+        const response: Response = await fetch(`${URL}/docs`, requestOptions);
+        const result: Document = await response.json();
 
         return result;
     },
     deleteDoc: async (documentId: string) => {
         const requestOptions = {
-            method: 'DELETE'
+            method: 'DELETE',
         };
-        const response = await fetch(`${URL}/docs/${documentId}`, requestOptions);
-        const result = await response.json();
+        const response: Response = await fetch(`${URL}/docs/${documentId}`, requestOptions);
+        const result: DeleteResponse = await response.json();
 
         return result;
-    }
+    },
 };

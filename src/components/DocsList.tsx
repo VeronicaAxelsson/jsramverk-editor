@@ -5,7 +5,6 @@ import {
     Avatar,
     Button,
     Tooltip,
-    Divider,
     List,
     ListItem,
     ListItemAvatar,
@@ -16,7 +15,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle
+    DialogTitle,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -25,9 +24,6 @@ import ArticleIcon from '@mui/icons-material/Article';
 import { useNavigate } from 'react-router-dom';
 import { docsModel, Document } from '../utils/docs';
 import { Header } from './Header';
-// import { Navigate } from "react-router-dom";
-import theme from '../themes/index';
-import { AnyARecord } from 'dns';
 
 const DocsList = () => {
     const [documents, setDocuments] = useState<Document[]>([]);
@@ -52,13 +48,13 @@ const DocsList = () => {
     const createDocument = async () => {
         const data = {
             content: '',
-            title: 'untitled'
+            title: 'untitled',
         };
         const doc = await docsModel.createDoc(data);
         navigate(`/${doc._id}`);
     };
 
-    const goToDocument = async (documentId: string) => {
+    const goToDocument = (documentId: string) => {
         navigate(`/${documentId}`);
     };
 
@@ -68,7 +64,7 @@ const DocsList = () => {
         right: 20,
         bottom: 20,
         left: 'auto',
-        position: 'fixed'
+        position: 'fixed',
     };
 
     useEffect(() => {
@@ -96,7 +92,6 @@ const DocsList = () => {
                                 primary={document.title}
                                 secondary={format(new Date(document.updatedAt), 'yyyy-MM-dd HH:mm')}
                             />
-                            {/* <Navigate to={`${document._id}`}> */}
                             <Tooltip title="Edit document">
                                 <IconButton
                                     aria-label="edit"
@@ -106,7 +101,6 @@ const DocsList = () => {
                                     <EditIcon />
                                 </IconButton>
                             </Tooltip>
-                            {/* </Navigate> */}
                             <Tooltip title="Delete document">
                                 <IconButton
                                     aria-label="delete"

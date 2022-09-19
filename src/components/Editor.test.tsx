@@ -3,34 +3,35 @@ import { act } from 'react-dom/test-utils';
 import ReactDOM from 'react-dom/client';
 import Editor from './Editor';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { docsModel } from '../utils/docs';
 import { expect, jest, test } from '@jest/globals';
 
 let container: any = null;
-beforeEach(() => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
-});
-
-afterEach(() => {
-    jest.restoreAllMocks();
-    document.body.removeChild(container);
-    container = null;
-});
 
 const fakeDocument = {
     title: 'content',
     content: 'title',
-    updatedAt: new Date()
+    updatedAt: new Date(),
 };
 
 const saveData = {
     title: 'content',
-    content: 'title'
+    content: 'title',
 };
 
 describe('Editor', () => {
+    beforeEach(() => {
+        container = document.createElement('div');
+        document.body.appendChild(container);
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+        document.body.removeChild(container);
+        container = null;
+    });
+
     test('Render Title in textfield and Content in editor', async () => {
         //I Editor-vyn ska documentets titel visas i text-fältet och dokumentets innehåll i trix-editorn.
         jest.spyOn(docsModel, 'getDoc').mockResolvedValue(fakeDocument);
@@ -39,12 +40,12 @@ describe('Editor', () => {
             ReactDOM.createRoot(container).render(
                 <Router>
                     <Editor />
-                </Router>
+                </Router>,
             );
         });
         // @ts-ignore
         expect(screen.getByRole('textbox', { name: /title-textbox/i }).value).toContain(
-            fakeDocument.title
+            fakeDocument.title,
         );
         // @ts-ignore
         expect(screen.getByRole('textbox', { name: '' }).value).toContain(fakeDocument.content);
@@ -57,7 +58,7 @@ describe('Editor', () => {
             ReactDOM.createRoot(container).render(
                 <Router>
                     <Editor />
-                </Router>
+                </Router>,
             );
         });
 

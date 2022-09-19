@@ -8,7 +8,7 @@ const App: React.FC = () => {
     return (
         <div className="App">
             <Routes>
-                <Route path={`/`} element={<DocsList />} />
+                <Route path={`/~veax20/editor/`} element={<DocsList />} />
                 <Route path={`/:documentId`} element={<Editor />} />
             </Routes>
         </div>

@@ -24,38 +24,38 @@ const Editor = () => {
     }, [documentId]);
 
     const textEditor = {
-        padding: '0 24px'
+        padding: '0 24px',
     };
 
-    let mergeTags = [
+    const mergeTags = [
         {
             trigger: '@',
             tags: [
                 { name: 'Dominic St-Pierre', tag: '@dominic' },
-                { name: 'John Doe', tag: '@john' }
-            ]
-        }
+                { name: 'John Doe', tag: '@john' },
+            ],
+        },
     ];
 
-    const handleEditorReady = (editor: any) => {
-        // this is a reference back to the editor if you want to
-        // do editing programatically
-    };
+    // const handleEditorReady = (editor: any) => {
+    //     // this is a reference back to the editor if you want to
+    //     // do editing programatically
+    // };
 
-    const handleChange = (html: any, text: string) => {
+    const handleChange = (html: string) => {
         editorRef.current = html;
     };
 
-    const handleTitleChange = (event: any) => {
+    const handleTitleChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         titleRef.current = event.currentTarget.value;
     };
 
     const saveText = async () => {
         const data = {
             content: editorRef.current,
-            title: titleRef.current
+            title: titleRef.current,
         };
-        const document = await docsModel.saveDoc(documentId, data);
+        await docsModel.saveDoc(documentId, data);
     };
 
     return (
@@ -67,7 +67,7 @@ const Editor = () => {
                         <Grid item xs textAlign={'left'}>
                             <TextField
                                 inputProps={{
-                                    'aria-label': 'title-textbox'
+                                    'aria-label': 'title-textbox',
                                 }}
                                 variant={'standard'}
                                 size={'small'}
@@ -94,7 +94,7 @@ const Editor = () => {
                     <TrixEditor
                         className="trix-text-editor"
                         onChange={handleChange}
-                        onEditorReady={handleEditorReady}
+                        // onEditorReady={handleEditorReady}
                         mergeTags={mergeTags}
                         value={editorRef.current}
                         aria-label={'trix-textbox'}
