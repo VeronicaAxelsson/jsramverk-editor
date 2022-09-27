@@ -1,4 +1,4 @@
-const URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
+const URL = 'http://localhost:1337';
 
 export type Document = {
     _id?: string;

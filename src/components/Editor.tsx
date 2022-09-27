@@ -1,18 +1,21 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import 'trix/dist/trix';
 import 'trix/dist/trix.css';
 import { TrixEditor } from 'react-trix';
 import { Toolbar, Button, TextField, Grid } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { docsModel, Document } from '../utils/docs';
-import { useParams } from 'react-router-dom';
-import { Header } from './Header';
+import 'core-js';
+import { SocketContext } from '../utils/socket';
 
-const Editor = () => {
-    const { documentId } = useParams();
+const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     const [loadingDocument, setLoadingDocument] = useState(true);
     const editorRef = useRef(null);
     const titleRef = useRef(null);
+    const [documentChange, setDocumentChange] = useState({});
+    const [editor, setEditor] = useState(null);
+    const socket = useContext(SocketContext);
+    const cursorPosRef = useRef([]);
 
     useEffect(() => {
         (async () => {
@@ -22,6 +25,28 @@ const Editor = () => {
             setLoadingDocument(false);
         })();
     }, [documentId]);
+
+    useEffect(() => {
+        const content = editorRef.current;
+        if (socket && editor) {
+            let data = {
+                documentId: documentId,
+                content: content
+            };
+            socket.emit('docsData', data);
+        }
+    }, [documentChange]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.emit('create', documentId);
+            socket.on('docsData', handleDocsData);
+        }
+        return () => {
+            socket.off('docsData', handleDocsData);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editor]);
 
     const textEditor = {
         padding: '0 24px'
@@ -38,11 +63,20 @@ const Editor = () => {
     ];
 
     const handleEditorReady = (editor: any) => {
-        // this is a reference back to the editor if you want to
-        // do editing programatically
+        setEditor(editor);
     };
 
-    const handleChange = (html: any, text: string) => {
+    const handleDocsData = (data: any) => {
+        cursorPosRef.current = editor.getSelectedRange();
+
+        editorRef.current = data.content;
+        editor.element.innerHTML = editorRef.current;
+
+        editor.setSelectedRange(cursorPosRef.current);
+    };
+
+    const handleChange = (html: string, text: string) => {
+        setDocumentChange({});
         editorRef.current = html;
     };
 
@@ -55,12 +89,11 @@ const Editor = () => {
             content: editorRef.current,
             title: titleRef.current
         };
-        const document = await docsModel.saveDoc(documentId, data);
+        await docsModel.saveDoc(documentId, data);
     };
 
     return (
         <React.Fragment>
-            <Header></Header>
             {!loadingDocument && (
                 <Toolbar>
                     <Grid container spacing={1}>

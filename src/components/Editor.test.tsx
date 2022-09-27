@@ -30,6 +30,8 @@ const saveData = {
     content: 'title'
 };
 
+const fakeDocumentId = '1234';
+
 describe('Editor', () => {
     test('Render Title in textfield and Content in editor', async () => {
         //I Editor-vyn ska documentets titel visas i text-fältet och dokumentets innehåll i trix-editorn.
@@ -38,7 +40,7 @@ describe('Editor', () => {
         await act(async () => {
             ReactDOM.createRoot(container).render(
                 <Router>
-                    <Editor />
+                    <Editor documentId={fakeDocumentId} />
                 </Router>
             );
         });
@@ -51,12 +53,13 @@ describe('Editor', () => {
     });
 
     test('Click save and saveDoc should be called', async () => {
+        //Då användaren klickar på “save” ska dokumentet sparas.
         jest.spyOn(docsModel, 'getDoc').mockResolvedValue(fakeDocument);
         const spySaveDoc = jest.spyOn(docsModel, 'saveDoc').mockResolvedValue(fakeDocument);
         await act(async () => {
             ReactDOM.createRoot(container).render(
                 <Router>
-                    <Editor />
+                    <Editor documentId={fakeDocumentId} />
                 </Router>
             );
         });
@@ -65,6 +68,6 @@ describe('Editor', () => {
         fireEvent.click(button);
 
         expect(spySaveDoc).toHaveBeenCalledTimes(1);
-        expect(spySaveDoc).toHaveBeenCalledWith(undefined, saveData);
+        expect(spySaveDoc).toHaveBeenCalledWith(fakeDocumentId, saveData);
     });
 });

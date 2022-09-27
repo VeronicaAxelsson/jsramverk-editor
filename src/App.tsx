@@ -1,17 +1,17 @@
 import React from 'react';
 import './App.css';
-import Editor from './components/Editor';
-import DocsList from './components/DocsList';
-import { Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import DocsView from './components/DocsView';
+import { SocketContext, socket } from './utils/socket';
 
 const App: React.FC = () => {
     return (
-        <div className="App">
-            <Routes>
-                <Route path={`/`} element={<DocsList />} />
-                <Route path={`/:documentId`} element={<Editor />} />
-            </Routes>
-        </div>
+        <SocketContext.Provider value={socket}>
+            <div className="App">
+                <Header></Header>
+                <DocsView></DocsView>
+            </div>
+        </SocketContext.Provider>
     );
 };
 
