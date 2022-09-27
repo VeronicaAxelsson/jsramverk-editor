@@ -12,13 +12,11 @@ import {
     MenuItem
 } from '@mui/material';
 import AbcIcon from '@mui/icons-material/Abc';
-import { useNavigate } from 'react-router-dom';
 
 const settings = ['Profile', 'Logout'];
 
-export const Header = () => {
+const Header = () => {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const navigate = useNavigate();
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -28,19 +26,22 @@ export const Header = () => {
         setAnchorElUser(null);
     };
 
-    const handleLogoClick = () => {
-        navigate('/');
-    };
-
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <AbcIcon
-                        fontSize="large"
-                        sx={{ display: { xs: 'flex' }, mr: 1, cursor: 'pointer' }}
-                        onClick={handleLogoClick}
-                    />
+                    <a href="/">
+                        <AbcIcon
+                            fontSize="large"
+                            sx={{
+                                display: { xs: 'flex' },
+                                mr: 1,
+                                cursor: 'pointer',
+                                color: '#fff'
+                            }}
+                        />
+                    </a>
+
                     <Typography
                         variant="h5"
                         noWrap
@@ -92,3 +93,5 @@ export const Header = () => {
         </AppBar>
     );
 };
+
+export default Header;

@@ -1,4 +1,4 @@
-const URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
+const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
 
 export type Document = {
     _id?: string;
@@ -9,13 +9,13 @@ export type Document = {
 
 export const docsModel = {
     getAllDocs: async () => {
-        const response = await fetch(`${URL}/docs`);
+        const response = await fetch(`${API_URL}/docs`);
         const result: Document[] = await response.json();
 
         return result;
     },
     getDoc: async (documentId: string) => {
-        const response = await fetch(`${URL}/docs/${documentId}`);
+        const response = await fetch(`${API_URL}/docs/${documentId}`);
         const result: Document = await response.json();
 
         return result;
@@ -26,7 +26,7 @@ export const docsModel = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
-        const response = await fetch(`${URL}/docs/${documentId}`, requestOptions);
+        const response = await fetch(`${API_URL}/docs/${documentId}`, requestOptions);
         const result = await response.json();
 
         return result;
@@ -37,7 +37,7 @@ export const docsModel = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
-        const response = await fetch(`${URL}/docs`, requestOptions);
+        const response = await fetch(`${API_URL}/docs`, requestOptions);
         const result = await response.json();
 
         return result;
@@ -46,7 +46,7 @@ export const docsModel = {
         const requestOptions = {
             method: 'DELETE'
         };
-        const response = await fetch(`${URL}/docs/${documentId}`, requestOptions);
+        const response = await fetch(`${API_URL}/docs/${documentId}`, requestOptions);
         const result = await response.json();
 
         return result;

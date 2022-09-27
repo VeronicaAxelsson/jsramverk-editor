@@ -1,7 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import ReactDOM from 'react-dom/client';
-import DocsList from './DocsList';
+import DocsView from './DocsView';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { docsModel } from '../utils/docs';
@@ -29,12 +29,6 @@ const fakeDocuments = [
     }
 ];
 
-const fakeDocument = {
-    title: 'content',
-    content: 'title',
-    updatedAt: new Date()
-};
-
 describe('DocsList', () => {
     //DocsList ska innehålla en lista med titel, datum (format YYYY-MM-DD HH:MM), edit-knapp och delete-knapp, för alla existerande dokument.
     test('Fetch and show all documents in the list.', async () => {
@@ -43,7 +37,7 @@ describe('DocsList', () => {
         await act(() => {
             ReactDOM.createRoot(container).render(
                 <Router>
-                    <DocsList />
+                    <DocsView />
                 </Router>
             );
         });
