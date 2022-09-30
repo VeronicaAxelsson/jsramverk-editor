@@ -12,10 +12,13 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     const [loadingDocument, setLoadingDocument] = useState(true);
     const editorRef = useRef(null);
     const titleRef = useRef(null);
-    const [documentChange, setDocumentChange] = useState({});
+    const [documentChange, setDocumentChange] = useState(true);
     const [editor, setEditor] = useState(null);
     const socket = useContext(SocketContext);
     const cursorPosRef = useRef([]);
+    const sentToSocketRef = useRef(true);
+    const [triggerSendToSocket, setTriggerSendToSocket] = useState({});
+    // const triggerTrix = useRef(true);
 
     useEffect(() => {
         (async () => {
@@ -28,14 +31,20 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
 
     useEffect(() => {
         const content = editorRef.current;
+        console.log(documentChange);
+
         if (socket && editor) {
+            console.log('emitting');
+
             let data = {
                 documentId: documentId,
                 content: content
             };
             socket.emit('docsData', data);
+            console.log(sentToSocketRef.current);
         }
-    }, [documentChange]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [triggerSendToSocket]);
 
     useEffect(() => {
         if (socket) {
@@ -67,17 +76,33 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     };
 
     const handleDocsData = (data: any) => {
-        cursorPosRef.current = editor.getSelectedRange();
+        console.log('writing');
 
         editorRef.current = data.content;
-        editor.element.innerHTML = editorRef.current;
+        sentToSocketRef.current = false;
 
+        editor.element.innerHTML = editorRef.current;
+        sentToSocketRef.current = false;
+
+        cursorPosRef.current = editor.getSelectedRange();
+
+        sentToSocketRef.current = false;
         editor.setSelectedRange(cursorPosRef.current);
     };
 
     const handleChange = (html: string, text: string) => {
-        setDocumentChange({});
-        editorRef.current = html;
+        // if (triggerTrix.current) {
+
+        if (sentToSocketRef.current) {
+            console.log('trigger');
+            editorRef.current = html;
+            setTriggerSendToSocket({});
+        }
+
+        sentToSocketRef.current = true;
+        // }
+
+        // triggerTrix.current = !triggerTrix.current;
     };
 
     const handleTitleChange = (event: any) => {
