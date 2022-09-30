@@ -12,11 +12,10 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     const [loadingDocument, setLoadingDocument] = useState(true);
     const editorRef = useRef(null);
     const titleRef = useRef(null);
-    const [documentChange, setDocumentChange] = useState(true);
     const [editor, setEditor] = useState(null);
     const socket = useContext(SocketContext);
     const cursorPosRef = useRef([]);
-    const sentToSocketRef = useRef(true);
+    const sendToSocketRef = useRef(true);
     const [triggerSendToSocket, setTriggerSendToSocket] = useState({});
     // const triggerTrix = useRef(true);
 
@@ -31,7 +30,6 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
 
     useEffect(() => {
         const content = editorRef.current;
-        console.log(documentChange);
 
         if (socket && editor) {
             console.log('emitting');
@@ -41,7 +39,7 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
                 content: content
             };
             socket.emit('docsData', data);
-            console.log(sentToSocketRef.current);
+            console.log(sendToSocketRef.current);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [triggerSendToSocket]);
@@ -79,27 +77,27 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
         console.log('writing');
 
         editorRef.current = data.content;
-        sentToSocketRef.current = false;
+        sendToSocketRef.current = false;
 
         editor.element.innerHTML = editorRef.current;
-        sentToSocketRef.current = false;
+        sendToSocketRef.current = false;
 
         cursorPosRef.current = editor.getSelectedRange();
 
-        sentToSocketRef.current = false;
+        sendToSocketRef.current = false;
         editor.setSelectedRange(cursorPosRef.current);
     };
 
     const handleChange = (html: string, text: string) => {
         // if (triggerTrix.current) {
 
-        if (sentToSocketRef.current) {
+        if (sendToSocketRef.current) {
             console.log('trigger');
             editorRef.current = html;
             setTriggerSendToSocket({});
         }
 
-        sentToSocketRef.current = true;
+        sendToSocketRef.current = true;
         // }
 
         // triggerTrix.current = !triggerTrix.current;
