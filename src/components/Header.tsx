@@ -26,11 +26,15 @@ const Header = () => {
         setAnchorElUser(null);
     };
 
+    const refreshPage = () => { 
+        window.location.reload(); 
+    }
+
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <a href="/">
+                    <a onClick={refreshPage}>
                         <AbcIcon
                             fontSize="large"
                             sx={{
