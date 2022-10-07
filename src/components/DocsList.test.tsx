@@ -2,9 +2,11 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import ReactDOM from 'react-dom/client';
 import DocsView from './DocsView';
+import DocsList from './DocsList';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { docsModel } from '../utils/docs';
+import { AuthContext, User } from '../utils/auth';
 
 let container: any = null;
 beforeEach(() => {
@@ -20,25 +22,39 @@ afterEach(() => {
     container = null;
 });
 
-const fakeDocuments = [
-    {
-        _id: 'documentId',
-        title: 'title',
-        content: 'content',
-        updatedAt: new Date()
-    }
-];
+const fakeDocumentId = '1';
+
+const fakeUserId = '2';
+const fakeToken = '3';
+
+const fakeUser: User = {
+    _id: fakeUserId,
+    email: 'test@test.se',
+    token: fakeToken
+};
+
+const fakeDocument = {
+    _id: fakeDocumentId,
+    title: 'title',
+    content: 'content',
+    updatedAt: new Date(),
+    owner: fakeUserId,
+    allowed_editors: ['test@test.se']
+};
+
+const fakeDocuments = [fakeDocument];
 
 describe('DocsList', () => {
     //DocsList ska innehålla en lista med titel, datum (format YYYY-MM-DD HH:MM), edit-knapp och delete-knapp, för alla existerande dokument.
     test('Fetch and show all documents in the list.', async () => {
-        jest.spyOn(docsModel, 'getAllDocs').mockResolvedValue(fakeDocuments);
+        jest.spyOn(docsModel, 'getOwnedDocs').mockResolvedValue(fakeDocuments);
+        jest.spyOn(docsModel, 'getEditorDocs').mockResolvedValue(fakeDocuments);
 
         await act(() => {
             ReactDOM.createRoot(container).render(
-                <Router>
-                    <DocsView />
-                </Router>
+                <AuthContext.Provider value={{ user: fakeUser }}>
+                    <DocsView></DocsView>
+                </AuthContext.Provider>
             );
         });
 

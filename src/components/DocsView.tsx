@@ -2,18 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { docsModel, Document } from '../utils/docs';
 import DocsList from './DocsList';
 import Editor from './Editor';
+import useAuth from '../utils/auth';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { IconButton, Tooltip, Box, Grid } from '@mui/material';
+
+type DocumentLists = {
+    owner: Document[],
+    editor: Document[]
+}
 
 const DocsView = () => {
-    const [documents, setDocuments] = useState<Document[]>([]);
+    const [documents, setDocuments] = useState<DocumentLists>()
     const [documentId, setDocumentId] = useState<string | undefined>(undefined);
     const [state, updateState] = useState<object>({});
+    const { user } = useAuth();
 
     const handleCreate = async () => {
         const data = {
             content: '',
-            title: 'untitled'
+            title: 'untitled',
+            owner: user._id
         };
-        const doc = await docsModel.createDoc(data);
+        const doc = await docsModel.createDoc(data, user.token);
         setDocumentId(doc._id);
     };
 
@@ -23,10 +33,12 @@ const DocsView = () => {
 
     useEffect(() => {
         (async () => {
-            const allDocs = await docsModel.getAllDocs();
-            setDocuments(allDocs);
+            const ownedDocs = await docsModel.getOwnedDocs(user._id, user.token);
+            const editorDocs = await docsModel.getEditorDocs(user.email, user.token);
+
+            setDocuments({ owner: ownedDocs, editor: editorDocs });            
         })();
-    }, [state]);
+    }, [state, documentId]);
 
     return (
         <React.Fragment>
@@ -38,7 +50,26 @@ const DocsView = () => {
                     updateState={updateState}
                 ></DocsList>
             )}
-            {documentId && <Editor documentId={documentId}></Editor>}
+            {documentId && (
+                <React.Fragment>
+                    <Grid container sx={{ padding: '24px 0 0 24px' }}>
+                        <Grid
+                            item
+                            sx={{ flexGrow: 0 }}
+                            direction="row"
+                            justifyContent="flex-start"
+                            alignItems="center"
+                        >
+                            <Tooltip title="Go back">
+                                <IconButton onClick={() => setDocumentId(null)} sx={{ p: 0 }}>
+                                    <ArrowBackIcon fontSize="large" sx={{ float: 'left' }} />
+                                </IconButton>
+                            </Tooltip>
+                        </Grid>
+                    </Grid>
+                    <Editor documentId={documentId}></Editor>
+                </React.Fragment>
+            )}
         </React.Fragment>
     );
 };
