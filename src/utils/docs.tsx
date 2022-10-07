@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:1337';
+const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
 
 export type Document = {
     _id?: string;
@@ -118,8 +118,6 @@ export const docsModel = {
             body: JSON.stringify(data)
         };
         const response = await fetchApi(`${API_URL}/docs/addEditor`, token, requestOptions);
-        console.log(response);
-
         if (response.status === 200) {
             const result = await response.json();
             return result;

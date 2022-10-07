@@ -24,8 +24,6 @@ const SignIn: React.FC = () => {
     const { login, register } = useAuth();
 
     const handleSubmitCredentials = async (data: UserCredentials) => {
-        console.log(data);
-
         if (formMode === 'Sign In') {
             login(data);
         }

@@ -56,9 +56,7 @@ const DocsList: React.FC<{
         setOpenDeleteAlert(false);
     };
 
-    const handleDelete = async (documentId: string) => {
-        console.log('deleting');
-        
+    const handleDelete = async (documentId: string) => {        
         await docsModel.deleteDoc(documentId, user.token);
 
         setOpenDeleteAlert(false);
@@ -76,13 +74,9 @@ const DocsList: React.FC<{
 
     const handleListChange = (event: React.SyntheticEvent, newValue: number) => {
         if (newValue === 0) {
-            console.log('owner');
-
             setListDocuments(documents.owner);
         }
         if (newValue === 1) {
-            console.log('editor');
-
             setListDocuments(documents.editor);
         }
         setValue(newValue);

@@ -1,6 +1,6 @@
 import React, { useContext, ReactNode, useState, useEffect, useMemo } from 'react';
 
-const API_URL = 'http://localhost:1337';
+const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net/';
 
 export type User = {
     _id?: string;

@@ -1,6 +1,6 @@
 import { User } from './auth';
 
-const API_URL = 'http://localhost:1337';
+const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
 
 const fetchApi = async (
     input: RequestInfo | URL,
