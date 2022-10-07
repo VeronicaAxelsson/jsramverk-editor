@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import {
     IconButton,
@@ -15,21 +15,38 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle
+    DialogTitle,
+    Tab,
+    Tabs
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
 import { docsModel, Document } from '../utils/docs';
+import useAuth from '../utils/auth';
 
 const DocsList: React.FC<{
-    documents: Document[];
+    documents: { owner: Document[]; editor: Document[] };
     handleEdit: any;
     handleCreate: any;
     updateState: any;
 }> = ({ documents, handleEdit, handleCreate, updateState }) => {
     const [openDeleteAlert, setOpenDeleteAlert] = useState<boolean>(false);
+    const { user } = useAuth();
+    const [value, setValue] = React.useState(0);
+    const [listDocuments, setListDocuments] = useState<Document[]>();
+
+    useEffect(() => {
+        setListDocuments(documents.owner);
+    }, [documents]);
+
+    const a11yProps = (index: number) => {
+        return {
+            id: `simple-tab-${index}`,
+            'aria-controls': `simple-tabpanel-${index}`
+        };
+    };
 
     const handleOpenDeleteAlert = () => {
         setOpenDeleteAlert(true);
@@ -40,7 +57,9 @@ const DocsList: React.FC<{
     };
 
     const handleDelete = async (documentId: string) => {
-        await docsModel.deleteDoc(documentId);
+        console.log('deleting');
+        
+        await docsModel.deleteDoc(documentId, user.token);
 
         setOpenDeleteAlert(false);
         updateState({});
@@ -53,6 +72,20 @@ const DocsList: React.FC<{
         bottom: 20,
         left: 'auto',
         position: 'fixed'
+    };
+
+    const handleListChange = (event: React.SyntheticEvent, newValue: number) => {
+        if (newValue === 0) {
+            console.log('owner');
+
+            setListDocuments(documents.owner);
+        }
+        if (newValue === 1) {
+            console.log('editor');
+
+            setListDocuments(documents.editor);
+        }
+        setValue(newValue);
     };
 
     const DeleteDialog: React.FC<{ documentId: string }> = ({ documentId }) => {
@@ -84,41 +117,54 @@ const DocsList: React.FC<{
     return (
         <React.Fragment>
             <Box sx={{ flexGrow: 1 }}>
-                <List dense={true}>
-                    {documents.map((document: Document, i: any) => (
-                        <ListItem key={i} data-testid="listItem">
-                            <ListItemAvatar>
-                                <Avatar sx={{ backgroundColor: 'background.default' }}>
-                                    <ArticleIcon color="secondary" />
-                                </Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                                data-testid="listItemText"
-                                primary={document.title}
-                                secondary={format(new Date(document.updatedAt), 'yyyy-MM-dd HH:mm')}
-                            />
-                            <Tooltip title="Edit document">
-                                <IconButton
-                                    aria-label="edit"
-                                    edge="end"
-                                    onClick={() => handleEdit(document._id)}
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete document">
-                                <IconButton
-                                    aria-label="delete"
-                                    edge="end"
-                                    onClick={handleOpenDeleteAlert}
-                                >
-                                    <DeleteIcon />
-                                </IconButton>
-                            </Tooltip>
-                            <DeleteDialog documentId={document._id}></DeleteDialog>
-                        </ListItem>
-                    ))}
-                </List>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={value} onChange={handleListChange} aria-label="basic tabs example">
+                        <Tab label="Your Documents" {...a11yProps(0)} />
+                        <Tab label="Shared With You" {...a11yProps(1)} />
+                    </Tabs>
+                </Box>
+                {documents && listDocuments && (
+                    <List dense={true}>
+                        {listDocuments.map((document: Document, i: any) => (
+                            <ListItem key={i} data-testid="listItem">
+                                <ListItemAvatar>
+                                    <Avatar sx={{ backgroundColor: 'background.default' }}>
+                                        <ArticleIcon color="secondary" />
+                                    </Avatar>
+                                </ListItemAvatar>
+                                <ListItemText
+                                    data-testid="listItemText"
+                                    primary={document.title}
+                                    secondary={format(
+                                        new Date(document.updatedAt),
+                                        'yyyy-MM-dd HH:mm'
+                                    )}
+                                />
+                                <Tooltip title="Edit document">
+                                    <IconButton
+                                        aria-label="edit"
+                                        edge="end"
+                                        onClick={() => handleEdit(document._id)}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Tooltip>
+                                {value === 0 && (
+                                    <Tooltip title="Delete document">
+                                        <IconButton
+                                            aria-label="delete"
+                                            edge="end"
+                                            onClick={handleOpenDeleteAlert}
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                                <DeleteDialog documentId={document._id}></DeleteDialog>
+                            </ListItem>
+                        ))}
+                    </List>
+                )}
             </Box>
             <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={handleCreate}>
                 <Tooltip title="Create new document">
