@@ -2,8 +2,6 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import ReactDOM from 'react-dom/client';
 import DocsView from './DocsView';
-import DocsList from './DocsList';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { docsModel } from '../utils/docs';
 import { AuthContext, User } from '../utils/auth';
@@ -39,6 +37,7 @@ const fakeDocument = {
     content: 'content',
     updatedAt: new Date(),
     owner: fakeUserId,
+    ownerEmail: 'test@test.se',
     allowed_editors: ['test@test.se']
 };
 
@@ -63,7 +62,7 @@ describe('DocsList', () => {
         expect(screen.getByText(/title/i).textContent).toBeInTheDocument;
         expect(
             screen.getByText(
-                /[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]/i
+                /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i
             ).textContent
         ).toBeInTheDocument;
         expect(screen.getAllByRole('button', { name: /edit/i })).toHaveLength(1);

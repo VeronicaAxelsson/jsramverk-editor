@@ -6,8 +6,15 @@ export type Document = {
     content?: string;
     updatedAt?: Date;
     owner?: string;
+    ownerEmail?: string;
     allowed_editors?: string[];
 };
+
+type GraphqlResponse = {
+    data: {
+        documents? : Document[],
+    }
+}
 
 const fetchApi = async (
     input: RequestInfo | URL,
@@ -31,28 +38,40 @@ export const docsModel = {
         const response = await fetchApi(`${API_URL}/docs`, token);
 
         if (response.status === 200) {
-            const result: Document[] = await response.json();
-            return result;
+            const result: GraphqlResponse = await response.json();
+            return result.data;
         } else {
             throw Error(`Request failed ${response.status}`);
         }
     },
     getOwnedDocs: async (userId: string, token: string) => {
-        const response = await fetchApi(`${API_URL}/docs?owner=${userId}`, token);
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: `{ documents(owner: "${userId}" ) { _id owner ownerEmail content title updatedAt allowed_editors }}` })
+        };
 
+        const response =  await fetchApi(`${API_URL}/graphql`, token, requestOptions);
+        
         if (response.status === 200) {
-            const result: Document[] = await response.json();
-            return result;
+            const result: GraphqlResponse = await response.json();
+            return result.data.documents;
         } else {
             throw Error(`Request failed ${response.status}`);
         }
     },
     getEditorDocs: async (userId: string, token: string) => {
-        const response = await fetchApi(`${API_URL}/docs?allowed_editor=${userId}`, token);
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: `{ documents(allowedEditor: "${userId}" ) { _id owner ownerEmail content title updatedAt allowed_editors }}` })
+        };
+
+        const response =  await fetchApi(`${API_URL}/graphql`, token, requestOptions);
 
         if (response.status === 200) {
-            const result: Document[] = await response.json();
-            return result;
+            const result: GraphqlResponse = await response.json();
+            return result.data.documents;
         } else {
             throw Error(`Request failed ${response.status}`);
         }
@@ -118,6 +137,8 @@ export const docsModel = {
             body: JSON.stringify(data)
         };
         const response = await fetchApi(`${API_URL}/docs/addEditor`, token, requestOptions);
+        console.log(response);
+
         if (response.status === 200) {
             const result = await response.json();
             return result;

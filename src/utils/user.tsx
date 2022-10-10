@@ -1,5 +1,3 @@
-import { User } from './auth';
-
 const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
 
 const fetchApi = async (
@@ -19,11 +17,19 @@ const fetchApi = async (
     return response;
 };
 
+type User = {
+    _id?: string;
+    email?: string;
+    password?: string;
+};
+
 export const userModel = {
     getAllUsers: async (token: string) => {
         const response = await fetchApi(`${API_URL}/user`, token);
         if (response.status === 200) {
             const result: User[] = await response.json();
+            console.log(result);
+            
             return result;
         } else {
             throw Error(`Request failed ${response.status}`);

@@ -21,7 +21,8 @@ const DocsView = () => {
         const data = {
             content: '',
             title: 'untitled',
-            owner: user._id
+            owner: user._id,
+            ownerEmail: user.email
         };
         const doc = await docsModel.createDoc(data, user.token);
         setDocumentId(doc._id);
@@ -34,6 +35,8 @@ const DocsView = () => {
     useEffect(() => {
         (async () => {
             const ownedDocs = await docsModel.getOwnedDocs(user._id, user.token);
+            console.log(ownedDocs);
+            
             const editorDocs = await docsModel.getEditorDocs(user.email, user.token);
 
             setDocuments({ owner: ownedDocs, editor: editorDocs });            

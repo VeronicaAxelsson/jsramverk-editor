@@ -129,10 +129,11 @@ const DocsList: React.FC<{
                                 <ListItemText
                                     data-testid="listItemText"
                                     primary={document.title}
-                                    secondary={format(
-                                        new Date(document.updatedAt),
-                                        'yyyy-MM-dd HH:mm'
-                                    )}
+                                    secondary={document.ownerEmail}
+                                    // secondary={format(
+                                    //     new Date(document.updatedAt),
+                                    //     'yyyy-MM-dd HH:mm'
+                                    // )}
                                 />
                                 <Tooltip title="Edit document">
                                     <IconButton
