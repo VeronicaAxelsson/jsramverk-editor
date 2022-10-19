@@ -1,9 +1,8 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
-import { Control, Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { saveAs } from 'file-saver';
 import ClipLoader from 'react-spinners/ClipLoader';
 import 'trix/dist/trix';
 import 'trix/dist/trix.css';
-import { TrixEditor } from 'react-trix';
 import {
     Toolbar,
     Button,
@@ -22,10 +21,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import { docsModel, Document } from '../utils/docs';
 import 'core-js';
-import { SocketContext } from '../utils/socket';
 import useAuth, { User } from '../utils/auth';
 import { userModel } from '../utils/user';
+import { emailModel, EmailData } from '../utils/email';
 import AddIcon from '@mui/icons-material/Add';
+import { pdfExporter } from 'quill-to-pdf';
+import ReactQuill from 'react-quill';
+import TextEditor from './TextEditor';
+import CodeEditor from './CodeEditor';
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -44,23 +47,14 @@ export type AllowedUser = {
     email: string;
 };
 
-const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId, updateList }) => {
+const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId, updateList }) => {
     const editorRef = useRef(null);
     const titleRef = useRef(null);
-    const [editor, setEditor] = useState(null);
-    const socket = useContext(SocketContext);
-    const cursorPosRef = useRef([]);
-    const sendToSocketRef = useRef(true);
-    const [triggerSendToSocket, setTriggerSendToSocket] = useState({});
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>();
-    const [editorUser, setEditorUser] = useState<User>();
+    const [editorUser, setEditorUser] = useState<User>({ email: '' });
     const [document, setDocument] = useState<Document>();
-    const [allowedEditors, setAllowedEditors] = useState<AllowedUser[]>([]);
-    const [updateAllowedEditors, setUpdateAllowedEditors] = useState({});
-    // const triggerTrix = useRef(true);
-
-    const { handleSubmit, control } = useForm();
+    const quillRef = useRef<ReactQuill>();
 
     //modal
     const [open, setOpen] = React.useState(false);
@@ -79,77 +73,6 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
         })();
     }, []);
 
-    useEffect(() => {
-        const content = editorRef.current;
-
-        if (socket && editor) {
-            let data = {
-                documentId: documentId,
-                content: content
-            };
-            socket.emit('docsData', data);
-            console.log(sendToSocketRef.current);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [triggerSendToSocket]);
-
-    useEffect(() => {
-        if (socket) {
-            socket.emit('create', documentId);
-            socket.on('docsData', handleDocsData);
-        }
-        return () => {
-            socket.off('docsData', handleDocsData);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [editor]);
-
-    const textEditor = {
-        padding: '0 24px'
-    };
-
-    let mergeTags = [
-        {
-            trigger: '@',
-            tags: [
-                { name: 'Dominic St-Pierre', tag: '@dominic' },
-                { name: 'John Doe', tag: '@john' }
-            ]
-        }
-    ];
-
-    const handleEditorReady = (editor: any) => {
-        setEditor(editor);
-    };
-
-    const handleDocsData = (data: any) => {
-        editorRef.current = data.content;
-        sendToSocketRef.current = false;
-
-        editor.element.innerHTML = editorRef.current;
-        sendToSocketRef.current = false;
-
-        cursorPosRef.current = editor.getSelectedRange();
-
-        sendToSocketRef.current = false;
-        editor.setSelectedRange(cursorPosRef.current);
-    };
-
-    const handleChange = (html: string, text: string) => {
-        // if (triggerTrix.current) {
-
-        if (sendToSocketRef.current) {
-            console.log('trigger');
-            editorRef.current = html;
-            setTriggerSendToSocket({});
-        }
-
-        sendToSocketRef.current = true;
-        // }
-
-        // triggerTrix.current = !triggerTrix.current;
-    };
-
     const handleTitleChange = (event: any) => {
         titleRef.current = event.currentTarget.value;
     };
@@ -159,15 +82,22 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
             content: editorRef.current,
             title: titleRef.current
         };
+        console.log(data);
+
         await docsModel.saveDoc(documentId, user.token, data);
     };
 
     const addEditor = async (event: any) => {
+        console.log(editorUser.email);
         const data = {
             documentId: document._id,
             editorEmail: editorUser.email
         };
         console.log(data);
+        const emailData: EmailData = {
+            inviterEmail: user.email,
+            email: editorUser.email
+        };
 
         try {
             await docsModel.addEditor(user.token, data);
@@ -177,13 +107,20 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
         } catch (error) {
             console.log('User already editor');
         }
+
+        try {
+            await emailModel.sendEmailInvite(user.token, emailData);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    const removeEditor = async (editorId: any) => {
+    const removeEditor = async (editorEmail: any) => {
         const data = {
             documentId: document._id,
-            editorEmail: editorId
+            editorEmail: editorEmail
         };
+
         try {
             await docsModel.removeEditor(user.token, data);
 
@@ -192,6 +129,15 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
         } catch (error) {
             console.log('User not an editor');
         }
+    };
+
+    const saveToPdf = async () => {
+        const delta = quillRef.current.getEditor().getContents();
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const pdfAsBlob = await pdfExporter.generatePdf(delta); // converts to PDF
+        saveAs(pdfAsBlob, `${titleRef.current}.pdf`);
     };
 
     return (
@@ -233,6 +179,19 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
                                     Save
                                 </Button>
                             </Grid>
+                            {document.type === 'text' && (
+                                <Grid item xs={'auto'} justifyContent="flex-end">
+                                    <Button
+                                        aria-label={'download'}
+                                        size={'small'}
+                                        variant={'contained'}
+                                        endIcon={<SaveIcon />}
+                                        onClick={saveToPdf}
+                                    >
+                                        Download as PDF
+                                    </Button>
+                                </Grid>
+                            )}
                         </Grid>
                     </Toolbar>
                     <Modal
@@ -245,6 +204,13 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
                             <Grid container spacing={4} direction="column">
                                 <Grid item>
                                     <Grid container spacing={1} direction="row" alignItems="center">
+                                        <Typography
+                                            id="modal-modal-title"
+                                            variant="h6"
+                                            component="h2"
+                                        >
+                                            Add registered user
+                                        </Typography>
                                         <Grid item>
                                             <Autocomplete
                                                 id="combo-box-demo"
@@ -253,6 +219,7 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
                                                 onChange={(event: any, newValue: User | null) =>
                                                     setEditorUser(newValue)
                                                 }
+                                                freeSolo={true}
                                                 getOptionLabel={(user: User) => user.email}
                                                 // inputValue={option._id}
                                                 value={editorUser}
@@ -260,6 +227,35 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
                                                 renderInput={(params) => (
                                                     <TextField {...params} label="Add editor" />
                                                 )}
+                                            />
+                                        </Grid>
+                                        <Grid item>
+                                            <Button
+                                                aria-label={'add'}
+                                                size={'medium'}
+                                                variant={'contained'}
+                                                endIcon={<AddIcon />}
+                                                onClick={addEditor}
+                                            >
+                                                Add
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid container spacing={1} direction="row" alignItems="center">
+                                        <Typography
+                                            id="modal-modal-title"
+                                            variant="h6"
+                                            component="h2"
+                                        >
+                                            Add non registered user
+                                        </Typography>
+                                        <Grid item>
+                                            <TextField
+                                                id="combo-box-demo"
+                                                size="small"
+                                                onChange={(event: any) =>
+                                                    setEditorUser({ email: event.target.value })
+                                                }
                                             />
                                         </Grid>
                                         <Grid item>
@@ -301,17 +297,17 @@ const Editor: React.FC<{ documentId: string, updateList?: any;}> = ({ documentId
                             </Grid>
                         </Box>
                     </Modal>
-
-                    <div style={textEditor}>
-                        <TrixEditor
-                            className="trix-text-editor"
-                            onChange={handleChange}
-                            onEditorReady={handleEditorReady}
-                            mergeTags={mergeTags}
-                            value={editorRef.current}
-                            aria-label={'trix-textbox'}
-                        />
-                    </div>
+                    {document.type === 'text' && (
+                        <TextEditor
+                            setDocument={setDocument}
+                            document={document}
+                            editorRef={editorRef}
+                            quillRef={quillRef}
+                        ></TextEditor>
+                    )}
+                    {document.type === 'code' && (
+                        <CodeEditor document={document} editorRef={editorRef}></CodeEditor>
+                    )}
                 </React.Fragment>
             ) : (
                 <ClipLoader

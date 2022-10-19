@@ -1,4 +1,14 @@
-const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
+const API_URL = 'http://localhost:1337';
+
+export type DocumentType = 'text' | 'code';
+
+export type Comment = {
+    rangeIndex: number;
+    rangeLength: number;
+    comment: string;
+    commenter: string;
+    date: Date;
+};
 
 export type Document = {
     _id?: string;
@@ -6,15 +16,17 @@ export type Document = {
     content?: string;
     updatedAt?: Date;
     owner?: string;
+    type?: DocumentType;
     ownerEmail?: string;
     allowed_editors?: string[];
+    comments?: Comment[];
 };
 
 type GraphqlResponse = {
     data: {
-        documents? : Document[],
-    }
-}
+        documents?: Document[];
+    };
+};
 
 const fetchApi = async (
     input: RequestInfo | URL,
@@ -48,11 +60,13 @@ export const docsModel = {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: `{ documents(owner: "${userId}" ) { _id owner ownerEmail content title updatedAt allowed_editors }}` })
+            body: JSON.stringify({
+                query: `{ documents(owner: "${userId}" ) { _id owner ownerEmail content title updatedAt allowed_editors }}`
+            })
         };
 
-        const response =  await fetchApi(`${API_URL}/graphql`, token, requestOptions);
-        
+        const response = await fetchApi(`${API_URL}/graphql`, token, requestOptions);
+
         if (response.status === 200) {
             const result: GraphqlResponse = await response.json();
             return result.data.documents;
@@ -64,10 +78,12 @@ export const docsModel = {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: `{ documents(allowedEditor: "${userId}" ) { _id owner ownerEmail content title updatedAt allowed_editors }}` })
+            body: JSON.stringify({
+                query: `{ documents(allowedEditor: "${userId}" ) { _id owner ownerEmail content title updatedAt allowed_editors }}`
+            })
         };
 
-        const response =  await fetchApi(`${API_URL}/graphql`, token, requestOptions);
+        const response = await fetchApi(`${API_URL}/graphql`, token, requestOptions);
 
         if (response.status === 200) {
             const result: GraphqlResponse = await response.json();

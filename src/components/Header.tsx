@@ -53,27 +53,27 @@ const Header = () => {
                             color: 'inherit',
                             textDecoration: 'none'
                         }}
-                    >                   
-                     <AbcIcon
-                    fontSize="large"
-                    sx={{
-                        display: { xs: 'flex' },
-                        mr: 1,
-                        color: '#fff'
-                    }}
-                />
+                    >
+                        <AbcIcon
+                            fontSize="large"
+                            sx={{
+                                display: { xs: 'flex' },
+                                mr: 1,
+                                color: '#fff'
+                            }}
+                        />
                         EDITOR
                     </Typography>
                     {user && (
                         <React.Fragment>
-                        <Typography variant="h6" component="div" sx={{ ml: 3 }}>
-                        {user?.email}
-                        <Tooltip title="Open menu">
-                                <IconButton onClick={handleOpenUserMenu} sx={{ ml: 3}}>
-                                    <AccountCircle fontSize="large" sx={{ color: '#fff' }} />
-                                </IconButton>
-                            </Tooltip>
-                        </Typography>
+                            <Typography variant="h6" component="div" sx={{ ml: 3 }}>
+                                {user?.email}
+                                <Tooltip title="Open menu">
+                                    <IconButton onClick={handleOpenUserMenu} sx={{ ml: 3 }}>
+                                        <AccountCircle fontSize="large" sx={{ color: '#fff' }} />
+                                    </IconButton>
+                                </Tooltip>
+                            </Typography>
                             <Menu
                                 sx={{ mt: '45px' }}
                                 id="menu-appbar"

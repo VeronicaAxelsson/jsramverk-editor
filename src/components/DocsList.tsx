@@ -56,18 +56,27 @@ const DocsList: React.FC<{
         setOpenDeleteAlert(false);
     };
 
-    const handleDelete = async (documentId: string) => {        
+    const handleDelete = async (documentId: string) => {
         await docsModel.deleteDoc(documentId, user.token);
 
         setOpenDeleteAlert(false);
         updateState({});
     };
 
-    const actionButtonStyle = {
+    const actionButtonStyle1 = {
         margin: 0,
         top: 'auto',
-        right: 20,
-        bottom: 20,
+        right: 40,
+        bottom: 30,
+        left: 'auto',
+        position: 'fixed'
+    };
+
+    const actionButtonStyle2 = {
+        margin: 0,
+        top: 'auto',
+        right: 150,
+        bottom: 30,
         left: 'auto',
         position: 'fixed'
     };
@@ -161,11 +170,33 @@ const DocsList: React.FC<{
                     </List>
                 )}
             </Box>
-            <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={handleCreate}>
-                <Tooltip title="Create new document">
-                    <AddIcon />
-                </Tooltip>
+            <Tooltip title="Create new text document">
+                <Button
+                    sx={actionButtonStyle2}
+                    variant="contained"
+                    color="primary"
+                    aria-label="add"
+                    onClick={() => handleCreate('text')}
+                >
+                    Text <AddIcon />
+                </Button>
+            </Tooltip>
+            <Tooltip title="Create new code document">
+                <Button
+                    sx={actionButtonStyle1}
+                    variant="contained"
+                    color="primary"
+                    aria-label="add"
+                    onClick={() => handleCreate('code')}
+                >
+                    Code <AddIcon />
+                </Button>
+            </Tooltip>
+            {/* <Tooltip title="Create new code document">
+            <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={() => handleCreate('code')}>
+                    Code <AddIcon />
             </Fab>
+            </Tooltip> */}
         </React.Fragment>
     );
 };
