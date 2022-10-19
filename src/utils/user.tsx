@@ -1,4 +1,4 @@
-const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
+const API_URL = 'http://localhost:1337';
 
 const fetchApi = async (
     input: RequestInfo | URL,
@@ -29,7 +29,7 @@ export const userModel = {
         if (response.status === 200) {
             const result: User[] = await response.json();
             console.log(result);
-            
+
             return result;
         } else {
             throw Error(`Request failed ${response.status}`);

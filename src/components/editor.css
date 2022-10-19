@@ -1,10 +1,14 @@
 .trix-text-exitor {
     padding: 0 24px;
     border: 1px solid #000 !important;
+    text-align: left !important;
 }
 
 trix-editor {
     border: 1px solid #000 !important;
+    font-size: 12px;
+    text-align: left !important;
+
 }
 
 .trix-toolbar.trix-button {

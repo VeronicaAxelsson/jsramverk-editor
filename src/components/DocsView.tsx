@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { docsModel, Document } from '../utils/docs';
+import { docsModel, Document, DocumentType } from '../utils/docs';
 import DocsList from './DocsList';
 import Editor from './Editor';
 import useAuth from '../utils/auth';
@@ -7,22 +7,28 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton, Tooltip, Box, Grid } from '@mui/material';
 
 type DocumentLists = {
-    owner: Document[],
-    editor: Document[]
-}
+    owner: Document[];
+    editor: Document[];
+};
 
 const DocsView = () => {
-    const [documents, setDocuments] = useState<DocumentLists>()
+    const [documents, setDocuments] = useState<DocumentLists>();
     const [documentId, setDocumentId] = useState<string | undefined>(undefined);
     const [state, updateState] = useState<object>({});
     const { user } = useAuth();
 
-    const handleCreate = async () => {
+    const handleCreate = async (type?: DocumentType) => {
+        let documentType: DocumentType = 'text';
+
+        if (type) {
+            documentType = type;
+        }
         const data = {
             content: '',
             title: 'untitled',
             owner: user._id,
-            ownerEmail: user.email
+            ownerEmail: user.email,
+            type: documentType
         };
         const doc = await docsModel.createDoc(data, user.token);
         setDocumentId(doc._id);
@@ -36,10 +42,10 @@ const DocsView = () => {
         (async () => {
             const ownedDocs = await docsModel.getOwnedDocs(user._id, user.token);
             console.log(ownedDocs);
-            
+
             const editorDocs = await docsModel.getEditorDocs(user.email, user.token);
 
-            setDocuments({ owner: ownedDocs, editor: editorDocs });            
+            setDocuments({ owner: ownedDocs, editor: editorDocs });
         })();
     }, [state, documentId]);
 
@@ -59,7 +65,7 @@ const DocsView = () => {
                         <Grid
                             item
                             sx={{ flexGrow: 0 }}
-                            direction="row"
+                            // direction="row"
                             justifyContent="flex-start"
                             alignItems="center"
                         >

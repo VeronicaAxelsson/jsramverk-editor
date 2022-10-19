@@ -60,11 +60,7 @@ describe('DocsList', () => {
         expect(screen.getAllByRole('listitem')).toHaveLength(1);
         expect(screen.getAllByTestId('listItemText')).toHaveLength(1);
         expect(screen.getByText(/title/i).textContent).toBeInTheDocument;
-        expect(
-            screen.getByText(
-                /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i
-            ).textContent
-        ).toBeInTheDocument;
+        expect(screen.getByText(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i).textContent).toBeInTheDocument;
         expect(screen.getAllByRole('button', { name: /edit/i })).toHaveLength(1);
         expect(screen.getAllByRole('button', { name: /delete/i })).toHaveLength(1);
     });
