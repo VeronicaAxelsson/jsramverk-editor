@@ -23,6 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
+import TerminalIcon from '@mui/icons-material/Terminal';
 import { docsModel, Document } from '../utils/docs';
 import useAuth from '../utils/auth';
 
@@ -108,7 +109,7 @@ const DocsList: React.FC<{
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDeleteAlert}>Abort</Button>
+                    <Button color={'error'} onClick={handleCloseDeleteAlert}>Abort</Button>
                     <Button onClick={() => handleDelete(documentId)} autoFocus>
                         DELETE
                     </Button>
@@ -132,7 +133,8 @@ const DocsList: React.FC<{
                             <ListItem key={i} data-testid="listItem">
                                 <ListItemAvatar>
                                     <Avatar sx={{ backgroundColor: 'background.default' }}>
-                                        <ArticleIcon color="secondary" />
+                                    {/* <TerminalIcon color="secondary"/> */}
+                                    { document.type === 'code' ? <TerminalIcon color="secondary"/> : <ArticleIcon color="secondary" />}
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
@@ -149,6 +151,7 @@ const DocsList: React.FC<{
                                         aria-label="edit"
                                         edge="end"
                                         onClick={() => handleEdit(document._id)}
+                                        color={'warning'}
                                     >
                                         <EditIcon />
                                     </IconButton>
@@ -159,6 +162,7 @@ const DocsList: React.FC<{
                                             aria-label="delete"
                                             edge="end"
                                             onClick={handleOpenDeleteAlert}
+                                            color={'warning'}
                                         >
                                             <DeleteIcon />
                                         </IconButton>
@@ -192,11 +196,6 @@ const DocsList: React.FC<{
                     Code <AddIcon />
                 </Button>
             </Tooltip>
-            {/* <Tooltip title="Create new code document">
-            <Fab sx={actionButtonStyle} color="primary" aria-label="add" onClick={() => handleCreate('code')}>
-                    Code <AddIcon />
-            </Fab>
-            </Tooltip> */}
         </React.Fragment>
     );
 };

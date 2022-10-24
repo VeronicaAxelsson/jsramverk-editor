@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, { useRef, useState } from 'react';
 import 'trix/dist/trix';
 import 'trix/dist/trix.css';
 import { format } from 'date-fns';
@@ -14,7 +14,6 @@ import DoneIcon from '@mui/icons-material/Done';
 import Typography from '@mui/material/Typography';
 import { Document, Comment, docsModel } from '../utils/docs';
 import 'core-js';
-import { SocketContext } from '../utils/socket';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import useAuth from '../utils/auth';
@@ -29,13 +28,10 @@ const TextEditor: React.FC<{
     document: Document;
     editorRef: any;
     quillRef: any;
-}> = ({ setDocument, document, editorRef, quillRef }) => {
+    handleEditorOnChange: any
+}> = ({ setDocument, document, editorRef, quillRef, handleEditorOnChange }) => {
     const { user } = useAuth();
-    const [editor, setEditor] = useState(null);
     const [comment, setComment] = useState<string>('');
-    const socket = useContext(SocketContext);
-    const sendToSocketRef = useRef(true);
-    const [triggerSendToSocket, setTriggerSendToSocket] = useState({});
     const activeCommentRef = useRef<Comment>();
     const newCommentRangeRef = useRef(null);
     const [showAddComment, setShowAddComment] = useState(false);
@@ -68,58 +64,11 @@ const TextEditor: React.FC<{
         'color'
     ];
 
-    // Connect to socket
-    useEffect(() => {
-        if (socket) {
-            console.log('connecting');
-
-            socket.emit('create', document._id);
-            socket.on('docsData', handleDocsData);
-        }
-        return () => {
-            socket.off('docsData', handleDocsData);
-        };
-    }, []); //editor?
-
-    //Send to socket when triggerd.
-    useEffect(() => {
-        const content = editorRef.current;
-
-        if (socket && editor) {
-            let data = {
-                documentId: document._id,
-                content: content
-            };
-            socket.emit('docsData', data);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [triggerSendToSocket]);
-
     const textEditor = {
         padding: '0 24px'
     };
 
-    const handleDocsData = (data: any) => {
-        //When reciving data from socket, update editor content but don't send to socket
-        editorRef.current = data.content;
-        sendToSocketRef.current = false;
-
-        quillRef.current.getEditor().container.firstChild.innerHTML = editorRef.current;
-        sendToSocketRef.current = false;
-    };
-
-    const handleEditorOnChange = (value: any) => {
-        if (sendToSocketRef.current) {
-            //This is set to false if the change was recived from socket.
-            editorRef.current = value;
-            setTriggerSendToSocket({});
-        }
-
-        sendToSocketRef.current = true;
-        setEditor(true); //Don't send to socket when editor is opened. Wait until the user writes something.
-    };
-
-    const handleChangeSelection = (range: any, source: any, editor: any) => {
+    const handleChangeSelection = (range: any) => {
         // If letters in the editor are marked, the add comment button should be displayed.
         if (range && range.length > 0) {
             setShowAddComment(true);
@@ -201,6 +150,17 @@ const TextEditor: React.FC<{
                 );
         }
 
+        if (newCommentRangeRef.current) {
+            quillRef.current
+            .getEditor()
+            .formatText(
+                newCommentRangeRef.current.index,
+                newCommentRangeRef.current.length,
+                'background',
+                '#fff'
+            );
+        }
+
         activeCommentRef.current = null;
     };
 
@@ -209,7 +169,7 @@ const TextEditor: React.FC<{
             .getEditor()
             .formatText(thisComment.rangeIndex, thisComment.rangeLength, 'background', '#fff');
         const remainingComments = document.comments.filter(
-            (comment) => comment.date != thisComment.date
+            (comment) => comment.date !== thisComment.date
         );
         const updatedDocument = await docsModel.saveDoc(document._id, user.token, {
             comments: remainingComments
@@ -247,7 +207,7 @@ const TextEditor: React.FC<{
                                         <TextField
                                             placeholder="Add comment"
                                             sx={{ display: 'inline' }}
-                                            onChange={(event: any) =>
+                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                                                 setComment(event.target.value)
                                             }
                                         ></TextField>
@@ -259,7 +219,7 @@ const TextEditor: React.FC<{
                                 )}
                             </ListItem>
                             {document.comments &&
-                                document.comments.map((comment: Comment, i: any) => (
+                                document.comments.map((comment: Comment, i: number) => (
                                     <React.Fragment>
                                         <ListItem
                                             key={i}

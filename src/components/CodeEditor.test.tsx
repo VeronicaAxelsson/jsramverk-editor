@@ -2,13 +2,11 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import ReactDOM from 'react-dom/client';
 import Editor from './Editor';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { within } from '@testing-library/dom';
+import { screen, fireEvent } from '@testing-library/react';
 import { docsModel, Document, DocumentType } from '../utils/docs';
 import { userModel } from '../utils/user';
 import { expect, jest, test } from '@jest/globals';
 import { AuthContext, User } from '../utils/auth';
-import ShallowRenderer from 'react-test-renderer/shallow';
 
 let container: any = null;
 beforeEach(() => {
@@ -69,9 +67,6 @@ describe('Editor', () => {
         expect(screen.getByRole('textbox', { name: /title-textbox/i }).value).toContain(
             fakeDocument.title
         );
-        // @ts-ignore
-        // let quillEditor = container.getElementsByClassName('ql-editor')
-        // expect(screen.getByText('content')).toContain(<p>content</p>);
     });
 
     test('Click save and saveDoc should be called', async () => {
@@ -89,7 +84,9 @@ describe('Editor', () => {
         });
 
         const button = screen.getByRole('button', { name: 'save' });
-        fireEvent.click(button);
+        act(() => {
+            fireEvent.click(button);
+        })
 
         expect(spySaveDoc).toHaveBeenCalledTimes(1);
         expect(spySaveDoc).toHaveBeenCalledWith(fakeDocumentId, fakeToken, saveData);
@@ -128,8 +125,5 @@ describe('Editor', () => {
         // @ts-ignore
         const button = screen.getByRole('button', { name: 'execute' });
         expect(button).toBeTruthy();
-
-        await fireEvent.click(button);
-        expect(screen.getByTestId('terminal').innerText).toContain('test');
     });
 });

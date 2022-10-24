@@ -1,10 +1,8 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, { useState } from 'react';
 import 'trix/dist/trix';
 import 'trix/dist/trix.css';
 import { Button, Box } from '@mui/material';
-import { Document } from '../utils/docs';
 import 'core-js';
-import { SocketContext } from '../utils/socket';
 import Editor from '@monaco-editor/react';
 
 export type AllowedUser = {
@@ -12,71 +10,16 @@ export type AllowedUser = {
     email: string;
 };
 
-const CodeEditor: React.FC<{ document: Document; editorRef: any }> = ({ document, editorRef }) => {
-    const [editor, setEditor] = useState(null);
-    const socket = useContext(SocketContext);
-    const cursorPosRef = useRef([]);
-    const sendToSocketRef = useRef(true);
-    const [triggerSendToSocket, setTriggerSendToSocket] = useState({});
-    const [terminalOutput, setTerminalOutput] = useState<string>('');
-    const codeEditorRef = useRef(null);
-
-    useEffect(() => {
-        const content = editorRef.current;
-
-        if (socket && editor) {
-            let data = {
-                documentId: document._id,
-                content: content
-            };
-            socket.emit('docsData', data);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [triggerSendToSocket]);
-
-    useEffect(() => {
-        if (socket) {
-            socket.emit('create', document._id);
-            socket.on('docsData', handleDocsData);
-        }
-        return () => {
-            socket.off('docsData', handleDocsData);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [editor]);
+const CodeEditor: React.FC<{ editorRef: any, handleEditorOnChange: any, codeEditorRef: any }> = ({ editorRef, handleEditorOnChange, codeEditorRef }) => {
+    const [terminalOutput, setTerminalOutput] = useState<string>(null);
 
     const textEditor = {
-        padding: '0 24px'
+        padding: '12px',
+        borderRadius: '4px'
     };
 
-    const handleDocsData = (data: any) => {
-        editorRef.current = data.content;
-        sendToSocketRef.current = false;
-
-        codeEditorRef.current.setValue(editorRef.current);
-        // editor.element.innerHTML = editorRef.current;
-        // sendToSocketRef.current = false;
-
-        // cursorPosRef.current = editor.getSelectedRange();
-
-        // sendToSocketRef.current = false;
-        // editor.setSelectedRange(cursorPosRef.current);
-    };
-
-    const handleEditorDidMount = (editor: any, monaco: any) => {
+    const handleEditorDidMount = (editor: any) => {
         codeEditorRef.current = editor;
-    };
-
-    const handleEditorChange = (value: string, event: any) => {
-        if (sendToSocketRef.current) {
-            console.log('trigger');
-            editorRef.current = value;
-            setTriggerSendToSocket({});
-        }
-
-        sendToSocketRef.current = true;
-
-        setEditor(true);
     };
 
     const executeCode = () => {
@@ -102,42 +45,48 @@ const CodeEditor: React.FC<{ document: Document; editorRef: any }> = ({ document
     };
 
     return (
+        <Box sx={{margin: '24px', textAlign: 'left', borderRadius: '4px'}}>
         <React.Fragment>
-            <Box style={textEditor}>
+            <Box style={textEditor} bgcolor="primary.main">
                 <Editor
-                    height="20vh"
-                    width={'90%'}
+                    height="30vh"
+                    width={'100%'}
                     defaultLanguage="javascript"
                     defaultValue={editorRef.current}
                     onMount={handleEditorDidMount}
-                    onChange={handleEditorChange}
-                    theme={'vs-dark'}
+                    onChange={handleEditorOnChange}
+                    theme={'vs-light'}
                 />
-            </Box>
             <Button
                 aria-label={'execute'}
                 size={'small'}
                 variant={'contained'}
-                // endIcon={<SaveIcon />}
                 onClick={executeCode}
+                sx={{margin: '12px'}}
+                color={'warning'}
             >
                 execute
             </Button>
             <Box
                 data-testid="terminal"
-                style={textEditor}
+                bgcolor="#fff"
                 sx={{
-                    width: 300,
-                    height: 300,
+                    // width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     whiteSpace: 'pre-wrap',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    padding: '24px',
+                    borderRadius: '4px'
                 }}
             >
+                {'>>>'}
+                <br></br>
                 {terminalOutput}
             </Box>
+            </Box>
         </React.Fragment>
+        </Box>
     );
 };
 

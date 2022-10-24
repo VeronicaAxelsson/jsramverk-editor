@@ -94,7 +94,6 @@ export const docsModel = {
     },
     getDoc: async (documentId: string, token: string) => {
         const response = await fetchApi(`${API_URL}/docs/${documentId}`, token);
-        // const response = await fetch(`${API_URL}/docs/${documentId}`);
 
         if (response.status === 200) {
             const result: Document = await response.json();
