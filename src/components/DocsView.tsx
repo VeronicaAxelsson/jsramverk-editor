@@ -42,7 +42,6 @@ const DocsView = () => {
     useEffect(() => {
         (async () => {
             const ownedDocs = await docsModel.getOwnedDocs(user._id, user.token);
-            console.log(ownedDocs);
 
             const editorDocs = await docsModel.getEditorDocs(user.email, user.token);
 

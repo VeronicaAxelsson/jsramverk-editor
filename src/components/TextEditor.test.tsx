@@ -82,8 +82,9 @@ describe('Editor', () => {
                 </AuthContext.Provider>
             );
         });
-        const button = screen.getByRole('button', { name: 'save' });
+        
         act(() => {
+            const button = screen.getByRole('button', { name: 'save' });
             fireEvent.click(button);
         })
 
@@ -95,7 +96,6 @@ describe('Editor', () => {
         //Då användaren klickar på “download as pdf" ska dokumentet laddas ner.
         jest.spyOn(docsModel, 'getDoc').mockResolvedValue(fakeDocument);
         jest.spyOn(userModel, 'getAllUsers').mockResolvedValue(fakeUsers);
-        // @ts-ignore
 
         await act(async () => {
             ReactDOM.createRoot(container).render(

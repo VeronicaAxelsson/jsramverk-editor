@@ -44,7 +44,6 @@ const CodeEditor: React.FC<{ editorRef: any; handleEditorOnChange: any; codeEdit
             .then(function (result) {
                 let decodedOutput = window.atob(result.data);
                 setTerminalOutput(decodedOutput);
-                console.log(decodedOutput);
             });
     };
 

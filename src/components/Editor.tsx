@@ -89,8 +89,6 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     // Connect to socket
     useEffect(() => {
         if (socket && document) {
-            console.log(document);
-
             socket.emit('create', document._id);
             socket.on('docsData', handleDocsData);
         }
@@ -148,7 +146,6 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
             content: editorRef.current,
             title: titleRef.current
         };
-        console.log(data);
 
         await docsModel.saveDoc(documentId, user.token, data);
         setSaveDocLoading(false);
@@ -179,7 +176,6 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
             setDocument(thisDocument);
         } catch (error) {
             sendEmail = false;
-            console.log(error);
         }
 
         setAddNewEditorLoading(false);

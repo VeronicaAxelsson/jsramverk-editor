@@ -152,7 +152,6 @@ export const docsModel = {
             body: JSON.stringify(data)
         };
         const response = await fetchApi(`${API_URL}/docs/addEditor`, token, requestOptions);
-        console.log(response);
 
         if (response.status === 200) {
             const result = await response.json();
@@ -163,15 +162,12 @@ export const docsModel = {
     },
 
     removeEditor: async (token: string, data: any) => {
-        console.log(data);
-
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
         const response = await fetchApi(`${API_URL}/docs/removeEditor`, token, requestOptions);
-        console.log(response);
 
         if (response.status === 200) {
             const result = await response.json();

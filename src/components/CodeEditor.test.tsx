@@ -83,8 +83,8 @@ describe('Editor', () => {
             );
         });
 
-        const button = screen.getByRole('button', { name: 'save' });
         act(() => {
+            const button = screen.getByRole('button', { name: 'save' });
             fireEvent.click(button);
         });
 
@@ -122,7 +122,6 @@ describe('Editor', () => {
             );
         });
 
-        // @ts-ignore
         const button = screen.getByRole('button', { name: 'execute' });
         expect(button).toBeTruthy();
     });
