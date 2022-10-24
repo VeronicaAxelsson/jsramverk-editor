@@ -82,9 +82,10 @@ describe('Editor', () => {
                 </AuthContext.Provider>
             );
         });
-
         const button = screen.getByRole('button', { name: 'save' });
-        fireEvent.click(button);
+        act(() => {
+            fireEvent.click(button);
+        })
 
         expect(spySaveDoc).toHaveBeenCalledTimes(1);
         expect(spySaveDoc).toHaveBeenCalledWith(fakeDocumentId, fakeToken, saveData);
