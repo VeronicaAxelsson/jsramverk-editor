@@ -4,7 +4,8 @@ import DocsList from './DocsList';
 import Editor from './Editor';
 import useAuth from '../utils/auth';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { IconButton, Tooltip, Box, Grid } from '@mui/material';
+import { IconButton, Tooltip, Grid } from '@mui/material';
+import ClipLoader from 'react-spinners/ClipLoader';
 
 type DocumentLists = {
     owner: Document[];
@@ -41,16 +42,24 @@ const DocsView = () => {
     useEffect(() => {
         (async () => {
             const ownedDocs = await docsModel.getOwnedDocs(user._id, user.token);
-            console.log(ownedDocs);
 
             const editorDocs = await docsModel.getEditorDocs(user.email, user.token);
 
             setDocuments({ owner: ownedDocs, editor: editorDocs });
         })();
-    }, [state, documentId]);
+    }, [state, documentId, user]);
 
     return (
         <React.Fragment>
+            {!documents && (
+                <ClipLoader
+                    color={'#00887a'}
+                    loading={true}
+                    size={50}
+                    aria-label="Loading Spinner"
+                    cssOverride={{ marginTop: '64px' }}
+                />
+            )}
             {documents && !documentId && (
                 <DocsList
                     documents={documents}
@@ -65,12 +74,11 @@ const DocsView = () => {
                         <Grid
                             item
                             sx={{ flexGrow: 0 }}
-                            // direction="row"
                             justifyContent="flex-start"
                             alignItems="center"
                         >
                             <Tooltip title="Go back">
-                                <IconButton onClick={() => setDocumentId(null)} sx={{ p: 0 }}>
+                                <IconButton onClick={() => setDocumentId(undefined)} sx={{ p: 0 }}>
                                     <ArrowBackIcon fontSize="large" sx={{ float: 'left' }} />
                                 </IconButton>
                             </Tooltip>

@@ -2,7 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import ReactDOM from 'react-dom/client';
 import DocsView from './DocsView';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { docsModel } from '../utils/docs';
 import { AuthContext, User } from '../utils/auth';
 

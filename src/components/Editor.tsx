@@ -14,10 +14,11 @@ import {
     ListItemText,
     Modal,
     Box,
-    Typography,
-    IconButton
+    Typography
 } from '@mui/material';
+import { SocketContext } from '../utils/socket';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 import { docsModel, Document } from '../utils/docs';
 import 'core-js';
@@ -26,7 +27,6 @@ import { userModel } from '../utils/user';
 import { emailModel, EmailData } from '../utils/email';
 import AddIcon from '@mui/icons-material/Add';
 import { pdfExporter } from 'quill-to-pdf';
-import ReactQuill from 'react-quill';
 import TextEditor from './TextEditor';
 import CodeEditor from './CodeEditor';
 
@@ -47,17 +47,25 @@ export type AllowedUser = {
     email: string;
 };
 
-const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId, updateList }) => {
+const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     const editorRef = useRef(null);
     const titleRef = useRef(null);
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>();
     const [editorUser, setEditorUser] = useState<User>({ email: '' });
     const [document, setDocument] = useState<Document>();
-    const quillRef = useRef<ReactQuill>();
+    const [addEditorLoading, setAddEditorLoading] = useState<boolean>(false);
+    const [addNewEditorLoading, setAddNewEditorLoading] = useState<boolean>(false);
+    const [saveDocLoading, setSaveDocLoading] = useState<boolean>(false);
+    const [editor, setEditor] = useState(null);
+    const socket = useContext(SocketContext);
+    const sendToSocketRef = useRef(true);
+    const [triggerSendToSocket, setTriggerSendToSocket] = useState({});
+    const codeEditorRef = useRef(null);
+    const quillRef = useRef<any>();
 
     //modal
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState<boolean>(false);
     const handleOpenModal = () => setOpen(true);
     const handleCloseModal = () => setOpen(false);
 
@@ -71,29 +79,91 @@ const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId
             const userlist: User[] = await userModel.getAllUsers(user.token);
             setUsers(userlist);
         })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleTitleChange = (event: any) => {
         titleRef.current = event.currentTarget.value;
     };
 
+    // Connect to socket
+    useEffect(() => {
+        if (socket && document) {
+            socket.emit('create', document._id);
+            socket.on('docsData', handleDocsData);
+        }
+        return () => {
+            socket.off('docsData', handleDocsData);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [document]); //When document is ready, connect to socket.
+
+    //Send to socket when triggerd.
+    useEffect(() => {
+        const content = editorRef.current;
+
+        if (socket && editor && document) {
+            let data = {
+                documentId: document._id,
+                content: content
+            };
+            socket.emit('docsData', data);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [triggerSendToSocket]);
+
+    const handleDocsData = (data: any) => {
+        //When reciving data from socket, update editor content but don't send to socket
+        editorRef.current = data.content;
+        sendToSocketRef.current = false;
+
+        if (document.type === 'text') {
+            quillRef.current.getEditor().container.firstChild.innerHTML = editorRef.current;
+        }
+
+        if (document.type === 'code') {
+            codeEditorRef.current.setValue(editorRef.current);
+        }
+
+        sendToSocketRef.current = false;
+    };
+
+    const handleEditorOnChange = (value: string) => {
+        if (sendToSocketRef.current) {
+            //This is set to false if the change was recived from socket.
+            editorRef.current = value;
+            setTriggerSendToSocket({});
+        }
+
+        sendToSocketRef.current = true;
+
+        setEditor(true); //Don't send to socket when editor is opened. Wait until the user writes something.
+    };
+
     const saveText = async () => {
+        setSaveDocLoading(true);
         const data = {
             content: editorRef.current,
             title: titleRef.current
         };
-        console.log(data);
 
         await docsModel.saveDoc(documentId, user.token, data);
+        setSaveDocLoading(false);
     };
 
-    const addEditor = async (event: any) => {
-        console.log(editorUser.email);
+    const addEditor = async () => {
+        let sendEmail = true;
+        if (editorUser._id) {
+            setAddEditorLoading(true);
+        } else {
+            setAddNewEditorLoading(true);
+        }
+
         const data = {
             documentId: document._id,
             editorEmail: editorUser.email
         };
-        console.log(data);
+
         const emailData: EmailData = {
             inviterEmail: user.email,
             email: editorUser.email
@@ -105,17 +175,22 @@ const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId
             const thisDocument: Document = await docsModel.getDoc(documentId, user.token);
             setDocument(thisDocument);
         } catch (error) {
-            console.log('User already editor');
+            sendEmail = false;
         }
 
-        try {
-            await emailModel.sendEmailInvite(user.token, emailData);
-        } catch (error) {
-            console.log(error);
+        setAddNewEditorLoading(false);
+        setAddEditorLoading(false);
+
+        if (sendEmail) {
+            try {
+                await emailModel.sendEmailInvite(user.token, emailData);
+            } catch (error) {
+                console.log(error);
+            }
         }
     };
 
-    const removeEditor = async (editorEmail: any) => {
+    const removeEditor = async (editorEmail: string) => {
         const data = {
             documentId: document._id,
             editorEmail: editorEmail
@@ -169,15 +244,16 @@ const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId
                                 </Button>
                             </Grid>
                             <Grid item xs={'auto'} justifyContent="flex-end">
-                                <Button
+                                <LoadingButton
                                     aria-label={'save'}
                                     size={'small'}
                                     variant={'contained'}
                                     endIcon={<SaveIcon />}
                                     onClick={saveText}
+                                    loading={saveDocLoading}
                                 >
                                     Save
-                                </Button>
+                                </LoadingButton>
                             </Grid>
                             {document.type === 'text' && (
                                 <Grid item xs={'auto'} justifyContent="flex-end">
@@ -216,12 +292,12 @@ const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId
                                                 id="combo-box-demo"
                                                 size="small"
                                                 options={users}
-                                                onChange={(event: any, newValue: User | null) =>
-                                                    setEditorUser(newValue)
-                                                }
+                                                onChange={(
+                                                    event: React.ChangeEvent<HTMLInputElement>,
+                                                    newValue: User | null
+                                                ) => setEditorUser(newValue)}
                                                 freeSolo={true}
                                                 getOptionLabel={(user: User) => user.email}
-                                                // inputValue={option._id}
                                                 value={editorUser}
                                                 sx={{ width: 300 }}
                                                 renderInput={(params) => (
@@ -230,44 +306,55 @@ const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId
                                             />
                                         </Grid>
                                         <Grid item>
-                                            <Button
+                                            <LoadingButton
                                                 aria-label={'add'}
                                                 size={'medium'}
                                                 variant={'contained'}
                                                 endIcon={<AddIcon />}
                                                 onClick={addEditor}
+                                                loading={addEditorLoading}
                                             >
                                                 Add
-                                            </Button>
+                                            </LoadingButton>
                                         </Grid>
                                     </Grid>
-                                    <Grid container spacing={1} direction="row" alignItems="center">
-                                        <Typography
-                                            id="modal-modal-title"
-                                            variant="h6"
-                                            component="h2"
+                                    <Grid item>
+                                        <Grid
+                                            container
+                                            spacing={1}
+                                            direction="row"
+                                            alignItems="center"
+                                            sx={{ marginTop: '32px' }}
                                         >
-                                            Add non registered user
-                                        </Typography>
-                                        <Grid item>
-                                            <TextField
-                                                id="combo-box-demo"
-                                                size="small"
-                                                onChange={(event: any) =>
-                                                    setEditorUser({ email: event.target.value })
-                                                }
-                                            />
-                                        </Grid>
-                                        <Grid item>
-                                            <Button
-                                                aria-label={'add'}
-                                                size={'medium'}
-                                                variant={'contained'}
-                                                endIcon={<AddIcon />}
-                                                onClick={addEditor}
+                                            <Typography
+                                                id="modal-modal-title"
+                                                variant="h6"
+                                                component="h2"
                                             >
-                                                Add
-                                            </Button>
+                                                Add non registered user
+                                            </Typography>
+                                            <Grid item>
+                                                <TextField
+                                                    sx={{ width: 300 }}
+                                                    id="combo-box-demo"
+                                                    size="small"
+                                                    onChange={(event: any) =>
+                                                        setEditorUser({ email: event.target.value })
+                                                    }
+                                                />
+                                            </Grid>
+                                            <Grid item>
+                                                <LoadingButton
+                                                    aria-label={'add'}
+                                                    size={'medium'}
+                                                    variant={'contained'}
+                                                    endIcon={<AddIcon />}
+                                                    onClick={addEditor}
+                                                    loading={addNewEditorLoading}
+                                                >
+                                                    Add
+                                                </LoadingButton>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                 </Grid>
@@ -277,16 +364,17 @@ const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId
                                     </Typography>
 
                                     <List dense={true}>
-                                        {document.allowed_editors.map((email) => (
+                                        {document.allowed_editors.map((email, i) => (
                                             <ListItem
+                                                key={i}
                                                 secondaryAction={
-                                                    <IconButton
-                                                        edge="end"
+                                                    <LoadingButton
                                                         aria-label="delete"
                                                         onClick={() => removeEditor(email)}
+                                                        // loading={removeEditorLoading}
                                                     >
                                                         <DeleteIcon />
-                                                    </IconButton>
+                                                    </LoadingButton>
                                                 }
                                             >
                                                 <ListItemText primary={email} />
@@ -303,10 +391,15 @@ const Editor: React.FC<{ documentId: string; updateList?: any }> = ({ documentId
                             document={document}
                             editorRef={editorRef}
                             quillRef={quillRef}
+                            handleEditorOnChange={handleEditorOnChange}
                         ></TextEditor>
                     )}
                     {document.type === 'code' && (
-                        <CodeEditor document={document} editorRef={editorRef}></CodeEditor>
+                        <CodeEditor
+                            editorRef={editorRef}
+                            handleEditorOnChange={handleEditorOnChange}
+                            codeEditorRef={codeEditorRef}
+                        ></CodeEditor>
                     )}
                 </React.Fragment>
             ) : (

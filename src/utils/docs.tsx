@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:1337';
+const API_URL = 'https://jsramverk-editor-veax20.azurewebsites.net';
 
 export type DocumentType = 'text' | 'code';
 
@@ -94,7 +94,6 @@ export const docsModel = {
     },
     getDoc: async (documentId: string, token: string) => {
         const response = await fetchApi(`${API_URL}/docs/${documentId}`, token);
-        // const response = await fetch(`${API_URL}/docs/${documentId}`);
 
         if (response.status === 200) {
             const result: Document = await response.json();
@@ -153,7 +152,6 @@ export const docsModel = {
             body: JSON.stringify(data)
         };
         const response = await fetchApi(`${API_URL}/docs/addEditor`, token, requestOptions);
-        console.log(response);
 
         if (response.status === 200) {
             const result = await response.json();
@@ -164,15 +162,12 @@ export const docsModel = {
     },
 
     removeEditor: async (token: string, data: any) => {
-        console.log(data);
-
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
         const response = await fetchApi(`${API_URL}/docs/removeEditor`, token, requestOptions);
-        console.log(response);
 
         if (response.status === 200) {
             const result = await response.json();

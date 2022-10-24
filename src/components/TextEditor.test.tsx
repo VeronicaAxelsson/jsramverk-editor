@@ -2,13 +2,11 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import ReactDOM from 'react-dom/client';
 import Editor from './Editor';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { within } from '@testing-library/dom';
+import { screen, fireEvent } from '@testing-library/react';
 import { docsModel, Document, DocumentType } from '../utils/docs';
 import { userModel } from '../utils/user';
 import { expect, jest, test } from '@jest/globals';
 import { AuthContext, User } from '../utils/auth';
-import ShallowRenderer from 'react-test-renderer/shallow';
 
 let container: any = null;
 beforeEach(() => {
@@ -69,9 +67,6 @@ describe('Editor', () => {
         expect(screen.getByRole('textbox', { name: /title-textbox/i }).value).toContain(
             fakeDocument.title
         );
-        // @ts-ignore
-        // let quillEditor = container.getElementsByClassName('ql-editor')
-        // expect(screen.getByText('content')).toContain(<p>content</p>);
     });
 
     test('Click save and saveDoc should be called', async () => {
@@ -87,9 +82,11 @@ describe('Editor', () => {
                 </AuthContext.Provider>
             );
         });
-
-        const button = screen.getByRole('button', { name: 'save' });
-        fireEvent.click(button);
+        
+        act(() => {
+            const button = screen.getByRole('button', { name: 'save' });
+            fireEvent.click(button);
+        })
 
         expect(spySaveDoc).toHaveBeenCalledTimes(1);
         expect(spySaveDoc).toHaveBeenCalledWith(fakeDocumentId, fakeToken, saveData);
@@ -99,9 +96,6 @@ describe('Editor', () => {
         //Då användaren klickar på “download as pdf" ska dokumentet laddas ner.
         jest.spyOn(docsModel, 'getDoc').mockResolvedValue(fakeDocument);
         jest.spyOn(userModel, 'getAllUsers').mockResolvedValue(fakeUsers);
-        // @ts-ignore
-
-        const mockedSave = jest.spyOn(Editor, 'saveToPdf');
 
         await act(async () => {
             ReactDOM.createRoot(container).render(
@@ -112,9 +106,7 @@ describe('Editor', () => {
         });
 
         const button = screen.getByRole('button', { name: 'download' });
-        fireEvent.click(button);
 
         expect(button).toBeTruthy();
-        expect(mockedSave).toHaveBeenCalled;
     });
 });
