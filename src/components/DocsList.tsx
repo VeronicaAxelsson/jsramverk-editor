@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { format } from 'date-fns';
 import {
     IconButton,
     Avatar,
@@ -10,7 +9,6 @@ import {
     ListItemAvatar,
     ListItemText,
     Box,
-    Fab,
     Dialog,
     DialogActions,
     DialogContent,
@@ -109,7 +107,9 @@ const DocsList: React.FC<{
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button color={'error'} onClick={handleCloseDeleteAlert}>Abort</Button>
+                    <Button color={'error'} onClick={handleCloseDeleteAlert}>
+                        Abort
+                    </Button>
                     <Button onClick={() => handleDelete(documentId)} autoFocus>
                         DELETE
                     </Button>
@@ -133,8 +133,12 @@ const DocsList: React.FC<{
                             <ListItem key={i} data-testid="listItem">
                                 <ListItemAvatar>
                                     <Avatar sx={{ backgroundColor: 'background.default' }}>
-                                    {/* <TerminalIcon color="secondary"/> */}
-                                    { document.type === 'code' ? <TerminalIcon color="secondary"/> : <ArticleIcon color="secondary" />}
+                                        {/* <TerminalIcon color="secondary"/> */}
+                                        {document.type === 'code' ? (
+                                            <TerminalIcon color="secondary" />
+                                        ) : (
+                                            <ArticleIcon color="secondary" />
+                                        )}
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText

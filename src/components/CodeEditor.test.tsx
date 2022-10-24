@@ -86,7 +86,7 @@ describe('Editor', () => {
         const button = screen.getByRole('button', { name: 'save' });
         act(() => {
             fireEvent.click(button);
-        })
+        });
 
         expect(spySaveDoc).toHaveBeenCalledTimes(1);
         expect(spySaveDoc).toHaveBeenCalledWith(fakeDocumentId, fakeToken, saveData);

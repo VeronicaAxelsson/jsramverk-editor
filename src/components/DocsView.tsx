@@ -52,13 +52,15 @@ const DocsView = () => {
 
     return (
         <React.Fragment>
-            {!documents && <ClipLoader
+            {!documents && (
+                <ClipLoader
                     color={'#00887a'}
                     loading={true}
                     size={50}
                     aria-label="Loading Spinner"
-                    cssOverride={{marginTop: '64px'}}
-                />}
+                    cssOverride={{ marginTop: '64px' }}
+                />
+            )}
             {documents && !documentId && (
                 <DocsList
                     documents={documents}

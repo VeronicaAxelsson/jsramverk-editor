@@ -28,7 +28,7 @@ const TextEditor: React.FC<{
     document: Document;
     editorRef: any;
     quillRef: any;
-    handleEditorOnChange: any
+    handleEditorOnChange: any;
 }> = ({ setDocument, document, editorRef, quillRef, handleEditorOnChange }) => {
     const { user } = useAuth();
     const [comment, setComment] = useState<string>('');
@@ -152,13 +152,13 @@ const TextEditor: React.FC<{
 
         if (newCommentRangeRef.current) {
             quillRef.current
-            .getEditor()
-            .formatText(
-                newCommentRangeRef.current.index,
-                newCommentRangeRef.current.length,
-                'background',
-                '#fff'
-            );
+                .getEditor()
+                .formatText(
+                    newCommentRangeRef.current.index,
+                    newCommentRangeRef.current.length,
+                    'background',
+                    '#fff'
+                );
         }
 
         activeCommentRef.current = null;
@@ -207,9 +207,9 @@ const TextEditor: React.FC<{
                                         <TextField
                                             placeholder="Add comment"
                                             sx={{ display: 'inline' }}
-                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                                                setComment(event.target.value)
-                                            }
+                                            onChange={(
+                                                event: React.ChangeEvent<HTMLInputElement>
+                                            ) => setComment(event.target.value)}
                                         ></TextField>
 
                                         <IconButton onClick={handleAddComment}>

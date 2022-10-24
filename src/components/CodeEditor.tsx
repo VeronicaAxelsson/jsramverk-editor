@@ -10,7 +10,11 @@ export type AllowedUser = {
     email: string;
 };
 
-const CodeEditor: React.FC<{ editorRef: any, handleEditorOnChange: any, codeEditorRef: any }> = ({ editorRef, handleEditorOnChange, codeEditorRef }) => {
+const CodeEditor: React.FC<{ editorRef: any; handleEditorOnChange: any; codeEditorRef: any }> = ({
+    editorRef,
+    handleEditorOnChange,
+    codeEditorRef
+}) => {
     const [terminalOutput, setTerminalOutput] = useState<string>(null);
 
     const textEditor = {
@@ -45,47 +49,47 @@ const CodeEditor: React.FC<{ editorRef: any, handleEditorOnChange: any, codeEdit
     };
 
     return (
-        <Box sx={{margin: '24px', textAlign: 'left', borderRadius: '4px'}}>
-        <React.Fragment>
-            <Box style={textEditor} bgcolor="primary.main">
-                <Editor
-                    height="30vh"
-                    width={'100%'}
-                    defaultLanguage="javascript"
-                    defaultValue={editorRef.current}
-                    onMount={handleEditorDidMount}
-                    onChange={handleEditorOnChange}
-                    theme={'vs-light'}
-                />
-            <Button
-                aria-label={'execute'}
-                size={'small'}
-                variant={'contained'}
-                onClick={executeCode}
-                sx={{margin: '12px'}}
-                color={'warning'}
-            >
-                execute
-            </Button>
-            <Box
-                data-testid="terminal"
-                bgcolor="#fff"
-                sx={{
-                    // width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    whiteSpace: 'pre-wrap',
-                    textAlign: 'left',
-                    padding: '24px',
-                    borderRadius: '4px'
-                }}
-            >
-                {'>>>'}
-                <br></br>
-                {terminalOutput}
-            </Box>
-            </Box>
-        </React.Fragment>
+        <Box sx={{ margin: '24px', textAlign: 'left', borderRadius: '4px' }}>
+            <React.Fragment>
+                <Box style={textEditor} bgcolor="primary.main">
+                    <Editor
+                        height="30vh"
+                        width={'100%'}
+                        defaultLanguage="javascript"
+                        defaultValue={editorRef.current}
+                        onMount={handleEditorDidMount}
+                        onChange={handleEditorOnChange}
+                        theme={'vs-light'}
+                    />
+                    <Button
+                        aria-label={'execute'}
+                        size={'small'}
+                        variant={'contained'}
+                        onClick={executeCode}
+                        sx={{ margin: '12px' }}
+                        color={'warning'}
+                    >
+                        execute
+                    </Button>
+                    <Box
+                        data-testid="terminal"
+                        bgcolor="#fff"
+                        sx={{
+                            // width: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            whiteSpace: 'pre-wrap',
+                            textAlign: 'left',
+                            padding: '24px',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        {'>>>'}
+                        <br></br>
+                        {terminalOutput}
+                    </Box>
+                </Box>
+            </React.Fragment>
         </Box>
     );
 };

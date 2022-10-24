@@ -55,8 +55,8 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     const [editorUser, setEditorUser] = useState<User>({ email: '' });
     const [document, setDocument] = useState<Document>();
     const [addEditorLoading, setAddEditorLoading] = useState<boolean>(false);
-    const [addNewEditorLoading, setAddNewEditorLoading] = useState<boolean>(false)
-    const [saveDocLoading, setSaveDocLoading] = useState<boolean>(false)
+    const [addNewEditorLoading, setAddNewEditorLoading] = useState<boolean>(false);
+    const [saveDocLoading, setSaveDocLoading] = useState<boolean>(false);
     const [editor, setEditor] = useState(null);
     const socket = useContext(SocketContext);
     const sendToSocketRef = useRef(true);
@@ -85,12 +85,12 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     const handleTitleChange = (event: any) => {
         titleRef.current = event.currentTarget.value;
     };
-    
+
     // Connect to socket
     useEffect(() => {
         if (socket && document) {
             console.log(document);
-            
+
             socket.emit('create', document._id);
             socket.on('docsData', handleDocsData);
         }
@@ -100,7 +100,6 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [document]); //When document is ready, connect to socket.
 
-    
     //Send to socket when triggerd.
     useEffect(() => {
         const content = editorRef.current;
@@ -132,7 +131,8 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
     };
 
     const handleEditorOnChange = (value: string) => {
-        if (sendToSocketRef.current) {  //This is set to false if the change was recived from socket.
+        if (sendToSocketRef.current) {
+            //This is set to false if the change was recived from socket.
             editorRef.current = value;
             setTriggerSendToSocket({});
         }
@@ -141,7 +141,6 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
 
         setEditor(true); //Don't send to socket when editor is opened. Wait until the user writes something.
     };
-
 
     const saveText = async () => {
         setSaveDocLoading(true);
@@ -191,10 +190,8 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
                 await emailModel.sendEmailInvite(user.token, emailData);
             } catch (error) {
                 console.log(error);
-                
             }
         }
-
     };
 
     const removeEditor = async (editorEmail: string) => {
@@ -299,9 +296,10 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
                                                 id="combo-box-demo"
                                                 size="small"
                                                 options={users}
-                                                onChange={(event: React.ChangeEvent<HTMLInputElement>, newValue: User | null) =>
-                                                    setEditorUser(newValue)
-                                                }
+                                                onChange={(
+                                                    event: React.ChangeEvent<HTMLInputElement>,
+                                                    newValue: User | null
+                                                ) => setEditorUser(newValue)}
                                                 freeSolo={true}
                                                 getOptionLabel={(user: User) => user.email}
                                                 value={editorUser}
@@ -325,37 +323,43 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
                                         </Grid>
                                     </Grid>
                                     <Grid item>
-                                    <Grid container spacing={1} direction="row" alignItems="center" sx={{marginTop: '32px'}}>
-                                        <Typography
-                                            id="modal-modal-title"
-                                            variant="h6"
-                                            component="h2"
+                                        <Grid
+                                            container
+                                            spacing={1}
+                                            direction="row"
+                                            alignItems="center"
+                                            sx={{ marginTop: '32px' }}
                                         >
-                                            Add non registered user
-                                        </Typography>
-                                        <Grid item>
-                                            <TextField
-                                                sx={{ width: 300 }}
-                                                id="combo-box-demo"
-                                                size="small"
-                                                onChange={(event: any) =>
-                                                    setEditorUser({ email: event.target.value })
-                                                }
-                                            />
-                                        </Grid>
-                                        <Grid item>
-                                            <LoadingButton
-                                                aria-label={'add'}
-                                                size={'medium'}
-                                                variant={'contained'}
-                                                endIcon={<AddIcon />}
-                                                onClick={addEditor}
-                                                loading={addNewEditorLoading}
+                                            <Typography
+                                                id="modal-modal-title"
+                                                variant="h6"
+                                                component="h2"
                                             >
-                                                Add
-                                            </LoadingButton>
+                                                Add non registered user
+                                            </Typography>
+                                            <Grid item>
+                                                <TextField
+                                                    sx={{ width: 300 }}
+                                                    id="combo-box-demo"
+                                                    size="small"
+                                                    onChange={(event: any) =>
+                                                        setEditorUser({ email: event.target.value })
+                                                    }
+                                                />
+                                            </Grid>
+                                            <Grid item>
+                                                <LoadingButton
+                                                    aria-label={'add'}
+                                                    size={'medium'}
+                                                    variant={'contained'}
+                                                    endIcon={<AddIcon />}
+                                                    onClick={addEditor}
+                                                    loading={addNewEditorLoading}
+                                                >
+                                                    Add
+                                                </LoadingButton>
+                                            </Grid>
                                         </Grid>
-                                    </Grid>
                                     </Grid>
                                 </Grid>
                                 <Grid item>
@@ -366,7 +370,7 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
                                     <List dense={true}>
                                         {document.allowed_editors.map((email, i) => (
                                             <ListItem
-                                            key={i}
+                                                key={i}
                                                 secondaryAction={
                                                     <LoadingButton
                                                         aria-label="delete"
@@ -395,7 +399,11 @@ const Editor: React.FC<{ documentId: string }> = ({ documentId }) => {
                         ></TextEditor>
                     )}
                     {document.type === 'code' && (
-                        <CodeEditor editorRef={editorRef} handleEditorOnChange={handleEditorOnChange} codeEditorRef={codeEditorRef}></CodeEditor>
+                        <CodeEditor
+                            editorRef={editorRef}
+                            handleEditorOnChange={handleEditorOnChange}
+                            codeEditorRef={codeEditorRef}
+                        ></CodeEditor>
                     )}
                 </React.Fragment>
             ) : (
